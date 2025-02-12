@@ -5,11 +5,12 @@ import kotlinx.serialization.Serializable
 @Serializable
 @OptIn(ExperimentalStdlibApi::class)
 class Block{
+    //This private constructor is only relevant for genesis block
     private constructor(){
         parentHash=""
         content="Genesis"
         var tNonce = 0
-        var tHash:ByteArray? = null
+        var tHash:ByteArray?
         do{
             tHash = BlockUtils.hashByteArray(
                 (parentHash+tNonce+content).toByteArray()

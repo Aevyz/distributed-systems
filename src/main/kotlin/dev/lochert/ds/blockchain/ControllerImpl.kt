@@ -5,6 +5,7 @@ import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.block.Block
 import dev.lochert.ds.blockchain.block.BlockChain
 
+@Deprecated("Not Used")
 class ControllerImpl(blockChain: BlockChain = BlockChain(Block.genesisNode)) : ControllerFunctions {
     val addressList = AddressList()
     var blockChain:BlockChain? = null

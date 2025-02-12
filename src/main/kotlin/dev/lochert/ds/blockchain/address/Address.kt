@@ -7,10 +7,10 @@ import java.time.Instant
 @Serializable
 data class Address(
     val ip:String,
-    val port: Int
+    val port: UShort
 ){
     init {
-        assert(port>0){
+        assert(port>0U){
             "Port must be greater than 0, is $port"
         }
     }
@@ -35,7 +35,7 @@ data class Address(
 
     override fun hashCode(): Int {
         var result = ip.hashCode()
-        result = 31 * result + port
+        result = 31 * result + port.toInt()
         return result
     }
 

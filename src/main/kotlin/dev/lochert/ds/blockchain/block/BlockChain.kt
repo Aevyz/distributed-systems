@@ -1,7 +1,7 @@
 package dev.lochert.ds.blockchain.block
 
-class BlockChain(vararg listOfBlocksArg:Block){
-    val listOfBlocks = listOfBlocksArg.toMutableList()
+class BlockChain(genesisBlock: Block){
+    val listOfBlocks = mutableListOf(genesisBlock)
 
 
     fun allBlocks():List<Block> = listOfBlocks.toList()

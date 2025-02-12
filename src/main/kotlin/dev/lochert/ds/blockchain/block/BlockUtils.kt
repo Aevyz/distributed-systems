@@ -10,8 +10,9 @@ class BlockUtils {
             return MessageDigest.getInstance(Constants.HASH_ALGORITHM).digest(input)
         }
 
+        @ExperimentalStdlibApi
         fun hasLeadingZeroBytes(hash: ByteArray, zeroBytes: Int = Constants.DIFFICULTY): Boolean {
-            return hash.take(zeroBytes).all { it == 0.toByte() }
+            return hash.toHexString().take(zeroBytes).all { it == '0' }
         }
     }
 }

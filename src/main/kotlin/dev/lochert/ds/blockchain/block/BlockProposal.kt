@@ -1,6 +1,5 @@
 package dev.lochert.ds.blockchain.block
 
-import dev.lochert.ds.blockchain.Constants
 import dev.lochert.ds.blockchain.block.BlockUtils.Companion.hasLeadingZeroBytes
 import dev.lochert.ds.blockchain.block.BlockUtils.Companion.hashByteArray
 
@@ -21,12 +20,12 @@ data class BlockProposal(
             nonce++
             val input = parentBlockHashHex + nonce.toString() + content
             blockHash = hashByteArray(input.toByteArray())
-            if(nonce%100000==0){
+            if(nonce%1000000==0){
                 println("Tried Nonce's: $nonce - ${blockHash[0]} ${blockHash[1]}")
             }
-        } while (!hasLeadingZeroBytes(blockHash, Constants.DIFFICULTY))
+        } while (!hasLeadingZeroBytes(blockHash))
 
-        println("Nonce: $nonce")
+        println("Found Nonce: $nonce, Hash: ${blockHash.toHexString()}")
 
         return Block(parentBlockHashHex, nonce, content, blockHash.toHexString())
     }
