@@ -1,6 +1,7 @@
 package dev.lochert.ds.blockchain.address
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import java.time.Instant
 
 @Serializable
@@ -13,9 +14,12 @@ data class Address(
             "Port must be greater than 0, is $port"
         }
     }
-    var createdTime = Instant.now().epochSecond
+    @Transient
+    var timestamp = Instant.now().epochSecond
+
+
     fun updateTime(){
-        createdTime = Instant.now().epochSecond
+        timestamp = Instant.now().epochSecond
     }
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -33,6 +37,10 @@ data class Address(
         var result = ip.hashCode()
         result = 31 * result + port
         return result
+    }
+
+    override fun toString(): String {
+        return "Address(ip='$ip', port=$port, createdTime=$timestamp)"
     }
 
 }

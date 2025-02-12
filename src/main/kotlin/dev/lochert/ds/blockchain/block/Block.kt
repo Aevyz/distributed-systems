@@ -1,5 +1,8 @@
 package dev.lochert.ds.blockchain.block
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 @OptIn(ExperimentalStdlibApi::class)
 class Block{
     private constructor(){

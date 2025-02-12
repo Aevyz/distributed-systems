@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions.*
 import kotlin.random.Random
 import kotlin.test.assertContentEquals
 
+@OptIn(ExperimentalStdlibApi::class)
 class BlockProposalTest {
     val content = "Unit Test Content"
     @Test
@@ -39,7 +40,7 @@ class BlockProposalTest {
     }
     @Test
     fun generateBlocks(){
-        val repeats=10
+        val repeats=20
 
         val list = mutableListOf(Block.genesisNode)
         repeat(repeats){
