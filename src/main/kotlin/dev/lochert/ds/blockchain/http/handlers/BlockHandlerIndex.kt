@@ -6,6 +6,7 @@ import dev.lochert.ds.blockchain.block.BlockChain
 import dev.lochert.ds.blockchain.http.sendResponse
 import kotlinx.serialization.json.Json
 
+// Partially inspired by ChatGPT
 /**
  * Handles `/block/index/{index}` for retrieving a block by index.
  */

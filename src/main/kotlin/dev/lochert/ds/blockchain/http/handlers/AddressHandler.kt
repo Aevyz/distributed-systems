@@ -7,6 +7,7 @@ import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.http.sendResponse
 import kotlinx.serialization.json.Json
 
+// Partially inspired by ChatGPT
 /**
  * Handles `/address` endpoint
  * - GET: Returns all addresses

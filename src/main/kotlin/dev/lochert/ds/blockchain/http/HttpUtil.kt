@@ -5,7 +5,7 @@ import java.net.HttpURLConnection
 import java.net.URI
 
 object HttpUtil {
-
+    //Chat GPT
     fun sendPostRequest(url: String, jsonBody: String): Pair<Int, String> {
         val connection = URI.create(url).toURL().openConnection() as HttpURLConnection
         connection.requestMethod = "POST"

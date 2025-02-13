@@ -8,7 +8,7 @@ import dev.lochert.ds.blockchain.http.handlers.*
 import java.net.InetAddress
 import java.net.InetSocketAddress
 
-
+// Partially inspired by ChatGPT
 fun main(args: Array<String>) {
     val port = if (args.isNotEmpty()) args[0].toInt() else 8080
     val server = HttpServer.create(InetSocketAddress(port), 0)
@@ -18,9 +18,10 @@ fun main(args: Array<String>) {
 
     val blockChain = BlockChain(Block.genesisNode)
     //TODO: Remove this for the final deploy
+    println("Populating Address and Block List")
     repeat(4){
         blockChain.addBlock(it.toString())
-        addressList.addAddress(InetAddress.getLocalHost().hostName, (it.toUShort()+10000U).toUShort())
+        addressList.addAddress("demo-address", (it.toUShort()+10000U).toUShort())
     }
 
     // Address handlers (GET & POST)
@@ -34,6 +35,7 @@ fun main(args: Array<String>) {
     server.createContext("/block/index", BlockHandlerIndex(blockChain))
 
     // Send a node the instruction to add a block
+    // /control/add-block/bla (I was lazy and wanted to add blocks via HTTP Get)
     server.createContext("/control/add-block", ControlAddHandler(blockChain))
 
     // Sends a message to each node in the address list and asks them for their addresses

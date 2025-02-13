@@ -6,6 +6,7 @@ import dev.lochert.ds.blockchain.block.BlockChain
 import dev.lochert.ds.blockchain.http.sendResponse
 import kotlinx.serialization.json.Json
 
+// Partially inspired by ChatGPT
 /**
  * Handles `/control/add-block/{string}` for adding a block based on string content.
  */

@@ -7,9 +7,7 @@ class BlockChain(genesisBlock: Block){
     fun allBlocks():List<Block> = listOfBlocks.toList()
     fun addBlock(block: Block): Block {
         assert(Block.isValid(block))
-        if(listOfBlocks.last().blockHash!=block.parentHash){
-            println("Warning: Added Hash Does not Match Chain")
-        }
+        assert(listOfBlocks.last().blockHash==block.parentHash)
         listOfBlocks.add(block)
         return block
     }

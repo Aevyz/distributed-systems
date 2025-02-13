@@ -6,9 +6,7 @@ import dev.lochert.ds.blockchain.block.BlockChain
 import dev.lochert.ds.blockchain.http.sendResponse
 import kotlinx.serialization.json.Json
 
-/**
- * Dummy handler for `/block/hash`
- */
+// Partially inspired by ChatGPT
 class BlockHandlerHash(val blockChain: BlockChain) : HttpHandler {
     override fun handle(exchange: HttpExchange) {
         val path = exchange.requestURI.path

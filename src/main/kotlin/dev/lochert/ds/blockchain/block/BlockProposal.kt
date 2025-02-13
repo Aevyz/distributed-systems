@@ -21,7 +21,7 @@ data class BlockProposal(
             val input = parentBlockHashHex + nonce.toString() + content
             blockHash = hashByteArray(input.toByteArray())
             if(nonce%1000000==0){
-                println("Tried Nonce's: $nonce - ${blockHash[0]} ${blockHash[1]}")
+                println("[Debug] Tried Nonce's: $nonce - ${blockHash[0]} ${blockHash[1]}")
             }
         } while (!hasLeadingZeroBytes(blockHash))
 
