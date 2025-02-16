@@ -3,7 +3,7 @@ package dev.lochert.ds.blockchain.http.handlers
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import dev.lochert.ds.blockchain.block.BlockChain
-import dev.lochert.ds.blockchain.http.sendResponse
+import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
 import kotlinx.serialization.json.Json
 
 // Partially inspired by ChatGPT
@@ -12,6 +12,7 @@ import kotlinx.serialization.json.Json
  */
 class BlockHandlerIndex(val blockChain: BlockChain) : HttpHandler {
     override fun handle(exchange: HttpExchange) {
+        println("Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
         val path = exchange.requestURI.path
         val parts = path.split("/")
 

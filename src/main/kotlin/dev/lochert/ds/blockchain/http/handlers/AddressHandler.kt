@@ -4,7 +4,7 @@ import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
 import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
-import dev.lochert.ds.blockchain.http.sendResponse
+import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
 import kotlinx.serialization.json.Json
 
 // Partially inspired by ChatGPT
@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
  */
 class AddressHandler(val addressList: AddressList) : HttpHandler {
     override fun handle(exchange: HttpExchange) {
+        println("${addressList.ownAddress}: Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
         when (exchange.requestMethod) {
             "GET" -> handleGet(exchange)
             "POST" -> handlePost(exchange)

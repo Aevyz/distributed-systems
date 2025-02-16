@@ -39,7 +39,29 @@ class Block{
     fun isGenesis() = parentHash.isEmpty()
 
     override fun toString(): String {
-        return "Block(parentHash='$parentHash', nonce=$nonce, content='$content', blockHash='$blockHash')"
+        return "Block(nonce=$nonce, content='$content', parentHash='$parentHash', blockHash='$blockHash')"
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Block
+
+        if (nonce != other.nonce) return false
+        if (parentHash != other.parentHash) return false
+        if (content != other.content) return false
+        if (blockHash != other.blockHash) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = nonce
+        result = 31 * result + parentHash.hashCode()
+        result = 31 * result + content.hashCode()
+        result = 31 * result + blockHash.hashCode()
+        return result
     }
 
 
