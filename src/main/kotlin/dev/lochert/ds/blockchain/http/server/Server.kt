@@ -54,6 +54,9 @@ class Server{
         httpServer!!.createContext("/block/hash", BlockHandlerHash(blockChain))
         httpServer!!.createContext("/block/index", BlockHandlerIndex(blockChain))
 
+        // Get blocks starting from block with this hash
+        httpServer!!.createContext("/block/hash/from", BlocksHandlerHash(blockChain))
+
         // Send a node the instruction to add a block
         // /control/add-block/bla (I was lazy and wanted to add blocks via HTTP Get)
         httpServer!!.createContext("/control/add-block", ControlAddHandler(this, addressList, blockChain))

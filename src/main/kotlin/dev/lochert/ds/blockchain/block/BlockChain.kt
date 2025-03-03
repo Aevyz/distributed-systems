@@ -17,5 +17,19 @@ class BlockChain(genesisBlock: Block){
     fun addBlock(blockProposal: BlockProposal): Block {
         return addBlock(blockProposal.generateBlock())
     }
+    fun doesBlockExist(searchHashHex: String): Boolean {
+        listOfBlocks.forEach{
+            if (it.blockHash == searchHashHex) {
+                return true
+            }
+        }
+        return false
+    }
     fun searchForBlock(searchHashHex: String): Block = listOfBlocks.first{it.blockHash.contentEquals(searchHashHex)}
+    fun searchForBlocksFrom(searchHashHex: String): MutableList<Block> {
+
+        val startOfSubList = listOfBlocks.indexOf(this.searchForBlock(searchHashHex))
+        val endOfSubList = listOfBlocks.size
+        return listOfBlocks.subList(startOfSubList, endOfSubList)
+    }
 }
