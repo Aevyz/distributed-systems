@@ -17,6 +17,8 @@ class BlockChain(genesisBlock: Block){
     fun addBlock(blockProposal: BlockProposal): Block {
         return addBlock(blockProposal.generateBlock())
     }
+
+    // Looks for the existence of the provided block in the list
     fun doesBlockExist(searchHashHex: String): Boolean {
         listOfBlocks.forEach{
             if (it.blockHash == searchHashHex) {
@@ -26,6 +28,8 @@ class BlockChain(genesisBlock: Block){
         return false
     }
     fun searchForBlock(searchHashHex: String): Block = listOfBlocks.first{it.blockHash.contentEquals(searchHashHex)}
+
+    // Returns the list of blocks starting from the block with the provided hash
     fun searchForBlocksFrom(searchHashHex: String): MutableList<Block> {
 
         val startOfSubList = listOfBlocks.indexOf(this.searchForBlock(searchHashHex))
