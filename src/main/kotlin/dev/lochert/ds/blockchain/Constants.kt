@@ -8,9 +8,20 @@ object Constants {
 
     const val HASH_ALGORITHM = "SHA3-512"
 
-    const val ADDRESS_PROPAGATION_RANDOM_SAMPLE = 5
 
-    val initialList = listOf(
+    val initialAddressSet = setOf(
         Address(InetAddress.getLocalHost().hostName, 8080U),
     )
+
+    var addressStrategy = AddressStrategyEnum.Subgraph
+
+    // Address Search goes 3 deep or terminates at 20 connections
+    var subgraphMaxDepth = 3
+    var subgraphMaxSearch = 20
+
+    // Connect at 3 points
+    var subgraphConnectionPoints = 3
 }
+
+
+

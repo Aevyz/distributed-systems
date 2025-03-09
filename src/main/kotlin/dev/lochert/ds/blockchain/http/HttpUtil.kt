@@ -54,4 +54,7 @@ object HttpUtil {
         os.write(response.toByteArray())
         os.close()
     }
+    fun sendResponse(exchange: HttpExchange, message: Message, code: Int = 200) {
+        return sendResponse(exchange, message.toString(), code)
+    }
 }
