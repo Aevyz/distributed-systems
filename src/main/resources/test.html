@@ -64,6 +64,12 @@
             <!-- Blocks from 9001 will be listed here -->
         </ul>
     </div>
+    <div class="column" id="column-9240">
+        <h2>9240</h2>
+        <ul id="list-9240">
+            <!-- Blocks from 9001 will be listed here -->
+        </ul>
+    </div>
 </div>
 
 <script>
@@ -90,7 +96,8 @@
         fetchBlocks('http://localhost:8080/block', 'list-8080');
         fetchBlocks('http://localhost:9000/block', 'list-9000');
         fetchBlocks('http://localhost:9001/block', 'list-9001');
-        fetchBlocks('http://localhost:9010/block', 'list-9099');
+        fetchBlocks('http://localhost:9099/block', 'list-9099');
+        fetchBlocks('http://localhost:9240/block', 'list-9240');
     }
 
     // Load the blocks when the page loads
