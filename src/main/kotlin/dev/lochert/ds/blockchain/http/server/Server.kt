@@ -2,6 +2,8 @@ package dev.lochert.ds.blockchain.http.server
 
 import com.sun.net.httpserver.HttpServer
 import dev.lochert.ds.blockchain.Constants
+import dev.lochert.ds.blockchain.Transactions.Transaction
+import dev.lochert.ds.blockchain.Transactions.Transactions
 import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.block.Block
@@ -19,18 +21,21 @@ class Server{
     val port: UShort
     val addressList: AddressList
     var blockChain: BlockChain
+    var transactions: Transactions
     // Initial Constructor
     constructor(){
         this.port = 8080U
 
         addressList= AddressList(Address(hostname, port))
         blockChain = BlockChain(Block.genesisNode)
+        transactions = Transactions()
     }
 
     constructor(port:UShort = 9999U) {
         this.port = port
         addressList = queryAddresses(Address(hostname, port))
         blockChain = queryBlockChain(addressList)
+        transactions = Transactions()
     }
 
     fun addBlock(content: String){
@@ -56,6 +61,11 @@ class Server{
 
         // Get blocks starting from block with this hash
         httpServer!!.createContext("/block/hash/from", BlocksHandlerHash(blockChain))
+
+        // Get all saved transactions
+        httpServer!!.createContext( "/transactions/all", TransactionsHandler(transactions))
+
+        httpServer!!.createContext( "/transactions/create", TransactionsHandler(transactions))
 
         // Send a node the instruction to add a block
         // /control/add-block/bla (I was lazy and wanted to add blocks via HTTP Get)
