@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json
 @Serializable
 class AddressList(val ownAddress: Address, val addressList: MutableSet<Address> = mutableSetOf()){
     init{
-        Constants.initialList.forEach{addAddress(it)}
+//        Constants.initialAddressSet.forEach{addAddress(it)}
     }
     fun addressListToJson(): String {
         return Json.encodeToString(addressList)

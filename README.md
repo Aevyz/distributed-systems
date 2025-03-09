@@ -14,7 +14,7 @@
 5. Send messages only there
 6. If one node goes down, replace with a new node on that chain (query all three remaining nodes and pick a random address)
 
-## Conflict Resolution
+## Conflict Resolution (Not Needed)
 Longest Blockchain wins
 If multiple with same length, lowest last hash is selected
 

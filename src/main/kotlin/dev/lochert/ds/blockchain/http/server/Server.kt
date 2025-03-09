@@ -1,6 +1,7 @@
 package dev.lochert.ds.blockchain.http.server
 
 import com.sun.net.httpserver.HttpServer
+import dev.lochert.ds.blockchain.AddressStrategyEnum
 import dev.lochert.ds.blockchain.Constants
 import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
@@ -8,6 +9,8 @@ import dev.lochert.ds.blockchain.block.Block
 import dev.lochert.ds.blockchain.block.BlockChain
 import dev.lochert.ds.blockchain.http.HttpUtil
 import dev.lochert.ds.blockchain.http.handlers.*
+import dev.lochert.ds.blockchain.http.server.strategy.address.naive.NaiveStrategy
+import dev.lochert.ds.blockchain.http.server.strategy.address.subgraph.SubgraphStrategy
 import dev.lochert.ds.blockchain.isAlphanumeric
 import kotlinx.serialization.json.Json
 import java.net.InetAddress
@@ -26,13 +29,23 @@ class Server{
         addressList= AddressList(Address(hostname, port))
         blockChain = BlockChain(Block.genesisNode)
     }
+    constructor(port:UShort, addressList: AddressList, blockChain: BlockChain) {
+        this.port = port
+        this.addressList = addressList
+        this.blockChain = blockChain
+    }
 
     constructor(port:UShort = 9999U) {
         this.port = port
         addressList = queryAddresses(Address(hostname, port))
         blockChain = queryBlockChain(addressList)
     }
-
+    fun queryAddresses(address: Address): AddressList {
+        return when(Constants.addressStrategy){
+            AddressStrategyEnum.Naive -> NaiveStrategy.queryAddressesNaively(address)
+            AddressStrategyEnum.Subgraph -> SubgraphStrategy.executeSubGraphStrategy(address)
+        }
+    }
     fun addBlock(content: String){
         assert(content.isAlphanumeric())
         HttpUtil.sendGetRequest(addressList.ownAddress.toUrl("control", "add-block", content))
@@ -46,6 +59,7 @@ class Server{
         httpServer = HttpServer.create(InetSocketAddress(port.toInt()), 100)
         // Address handlers (GET & POST)
         httpServer!!.createContext("/address", AddressHandler(addressList))
+        httpServer!!.createContext("/address-graph.svg", AddressGraphHandler(addressList))
 
         // Block handlers (GET & POST)
         httpServer!!.createContext("/block", BlockHandler(this, addressList, blockChain))
@@ -66,26 +80,6 @@ class Server{
         println("Server started on port http://$hostname:$port (http://localhost:$port)")
     }
     companion object{
-        fun queryAddresses(thisAddress: Address) : AddressList{
-            println("Querying for Addresses")
-            val addressList = AddressList(thisAddress)
-            Constants.initialList.forEach { addressList.addAddress(it) }
-
-            Constants.initialList.parallelStream().forEach { address ->
-                try{
-                    val (_, rBody) = HttpUtil.sendPostRequest("http://${address.ip}:${address.port}/address", Json.encodeToString(thisAddress))
-                    val receivedAddressList = Json.decodeFromString<List<Address>>(rBody)
-
-                    synchronized(addressList){
-                        receivedAddressList.forEach { addressList.addAddress(it) }
-                    }
-
-                }catch (e:Exception){
-                    println("Failed to connect to http://${address.ip}:${address.port}/address")
-                }
-            }
-            return addressList
-        }
         fun queryBlockChain(addressList: AddressList):BlockChain{
             println("Querying For Blocks (Longest Wins)")
             val blockChainsFound = addressList.addressList.mapNotNull {

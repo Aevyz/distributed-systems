@@ -50,19 +50,19 @@ open class BlockHandler(val server:Server, val addressList: AddressList, val blo
             when {
                 blockChain.listOfBlocks.last().blockHash == block.blockHash -> sendResponse(
                     exchange,
-                    Json.encodeToString(Message.blockAlreadyExists),
+                    Message.blockAlreadyExists,
                     208
                 ) // Already Reported
 
                 // Have to use custom response codes because the 400 block throws an exception
                 blockChain.listOfBlocks.contains(block) -> sendResponse(
                     exchange,
-                    Json.encodeToString(Message.OutdatedBlockchain),
+                    Message.OutdatedBlockchain,
                     298 // Custom HTTP Code
                 ) // Conflict
                 blockChain.listOfBlocks.last().blockHash != block.parentHash -> sendResponse(
                     exchange,
-                    Json.encodeToString(Message.ParentHashDoesNotMatch),
+                    Message.ParentHashDoesNotMatch,
                     299 //Custom HTTP Code
                 )
                 else -> {
@@ -98,7 +98,7 @@ open class BlockHandler(val server:Server, val addressList: AddressList, val blo
      */
     protected fun propagateBlock(block: Block){
         var responseCodes: List<Pair<String, Pair<Int, String>>> = listOf()
-        val t = thread {
+        thread {
 
             println("${addressList.ownAddress}: Propagating to ${addressList.addressList}")
             responseCodes = addressList.addressList.mapNotNull {
@@ -114,9 +114,6 @@ open class BlockHandler(val server:Server, val addressList: AddressList, val blo
 
             println("${addressList.ownAddress}: Response Codes for Block Propagation (${responseCodes.size})")
             responseCodes.forEach { println("\t- $it") }
-//            if(responseCodes.any { it.second.first>250 }){
-//                server.blockChain = Server.queryBlockChain(server.addressList)
-//            }
         }
 
     }
