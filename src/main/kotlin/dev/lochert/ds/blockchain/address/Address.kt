@@ -40,7 +40,10 @@ data class Address(
     }
 
     override fun toString(): String {
-        return "Address(ip='$ip', port=$port, createdTime=$timestamp)"
+        return "Address - $ip:$port"
     }
 
+    fun toUrl(vararg extension:String): String {
+        return "http://$ip:$port${extension.fold("") { acc, s -> "$acc/$s" }}"
+    }
 }

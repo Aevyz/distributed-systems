@@ -1,5 +1,6 @@
 package dev.lochert.ds.blockchain.http
 
+import com.sun.net.httpserver.HttpExchange
 import java.io.OutputStream
 import java.net.HttpURLConnection
 import java.net.URI
@@ -11,6 +12,8 @@ object HttpUtil {
         connection.requestMethod = "POST"
         connection.setRequestProperty("Content-Type", "application/json")
         connection.doOutput = true
+        connection.connectTimeout=5000
+        connection.readTimeout=10000
 
         // Write JSON body to request
         val outputStream: OutputStream = connection.outputStream
@@ -22,13 +25,15 @@ object HttpUtil {
         val responseCode = connection.responseCode
         val responseMessage = connection.inputStream.bufferedReader().use { it.readText() }
 
-        println("Response Code: $responseCode")
-        println("Response: $responseMessage")
+//        println("Response Code: $responseCode")
+//        println("Response: $responseMessage")
         return Pair(responseCode, responseMessage)
     }
 
     fun sendGetRequest(url: String): Pair<Int, String> {
         val connection = URI.create(url).toURL().openConnection() as HttpURLConnection
+        connection.connectTimeout=5000
+        connection.readTimeout=10000
         connection.requestMethod = "GET"
         connection.setRequestProperty("Accept", "application/json")
 
@@ -36,9 +41,20 @@ object HttpUtil {
         val responseCode = connection.responseCode
         val responseMessage = connection.inputStream.bufferedReader().use { it.readText() }
 
-        println("Response Code: $responseCode")
-        println("Response: $responseMessage")
+//        println("Response Code: $responseCode")
+//        println("Response: $responseMessage")
         return Pair(responseCode, responseMessage)
     }
-
+    /**
+     * Utility function to send an HTTP response.
+     */
+    fun sendResponse(exchange: HttpExchange, response: String, code: Int = 200) {
+        exchange.sendResponseHeaders(code, response.toByteArray().size.toLong())
+        val os: OutputStream = exchange.responseBody
+        os.write(response.toByteArray())
+        os.close()
+    }
+    fun sendResponse(exchange: HttpExchange, message: Message, code: Int = 200) {
+        return sendResponse(exchange, message.toString(), code)
+    }
 }
