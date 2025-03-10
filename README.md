@@ -1,5 +1,7 @@
 # Logic
 
+> IPv4 preferred! No IPv6 Support!
+
 ## Strategy
 ### Naive Strategy
 1. Connect to each core node to find addresses

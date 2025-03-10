@@ -1,0 +1,58 @@
+services:
+  initial:
+    build: .
+  node1:
+    build: .
+    depends_on:
+      - initial
+    command: [ "--args", "9001" ]
+  node2:
+    build: .
+    depends_on:
+      - initial
+    command: [ "--args", "9002" ]
+  node3:
+    build: .
+    depends_on:
+      - initial
+    command: [ "--args", "9003" ]
+  node4:
+    build: .
+    depends_on:
+      - initial
+    command: [ "--args", "9004" ]
+  node5:
+    build: .
+    depends_on:
+      - initial
+    command: [ "--args", "9005" ]
+  node6:
+    build: .
+    depends_on:
+      - initial
+    command: [ "--args", "9006" ]
+  node7:
+    build: .
+    depends_on:
+      - initial
+    command: [ "--args", "9007" ]
+  node8:
+    build: .
+    depends_on:
+      - initial
+    command: [ "--args", "9008" ]
+  node9:
+    build: .
+    depends_on:
+      - initial
+    command: [ "--args", "9009" ]
+  node10:
+    build: .
+    depends_on:
+      - initial
+    command: [ "--args", "9010" ]
+  node11:
+    build: .
+    depends_on:
+      - initial
+    command: [ "--args", "9011" ]
