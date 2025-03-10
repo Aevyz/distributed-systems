@@ -1,8 +1,8 @@
 package dev.lochert.ds.blockchain.http
 
+import dev.lochert.ds.blockchain.getOwnIpAddress
 import dev.lochert.ds.blockchain.http.server.strategy.address.subgraph.LastGraph
 import org.junit.jupiter.api.Test
-import java.net.InetAddress
 import kotlin.concurrent.thread
 
 class IntegrationTestLarge {
@@ -25,7 +25,7 @@ class IntegrationTestLarge {
         Thread.sleep(500)
         LastGraph.updateGraph()
         for(i in 9000 .. 9000+(repetitions-1)){
-            HttpUtil.sendGetRequest("http://${InetAddress.getLocalHost().hostName}:$i/control/add-block/$i")
+            HttpUtil.sendGetRequest("http://${getOwnIpAddress()}:$i/control/add-block/$i")
             Thread.sleep(400)
         }
         Thread.sleep(60000)

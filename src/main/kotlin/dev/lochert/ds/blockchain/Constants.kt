@@ -1,7 +1,6 @@
 package dev.lochert.ds.blockchain
 
 import dev.lochert.ds.blockchain.address.Address
-import java.net.InetAddress
 
 object Constants {
     var DIFFICULTY = 2
@@ -9,8 +8,9 @@ object Constants {
     const val HASH_ALGORITHM = "SHA3-512"
 
 
-    val initialAddressSet = setOf(
-        Address(InetAddress.getLocalHost().hostName, 8080U),
+    var initialAddressSet = setOf(
+        Address(getOwnIpAddress(), 8080U), // Localhost Initial
+        Address("172.18.0.2", 8080U), // Docker Initial
     )
 
     var addressStrategy = AddressStrategyEnum.Subgraph
