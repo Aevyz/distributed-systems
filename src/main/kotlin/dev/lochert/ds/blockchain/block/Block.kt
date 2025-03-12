@@ -1,5 +1,6 @@
 package dev.lochert.ds.blockchain.block
 
+import dev.lochert.ds.blockchain.Transactions.Transaction
 import dev.lochert.ds.blockchain.Transactions.Transactions
 import kotlinx.serialization.Serializable
 
@@ -24,7 +25,7 @@ class Block{
 
         nonce = tNonce
         blockHash = tHash!!.toHexString()
-        transactions = Transactions()
+        transactions = Transactions().allTransactions()
     }
     constructor(parentHash:String, nonce:Int, content:String, blockHash:String, transactions: Transactions){
         assert(parentHash.isNotBlank()){"Parent Hash cannot be empty"}
@@ -33,17 +34,17 @@ class Block{
         this.nonce=nonce
         this.content=content
         this.blockHash=blockHash
-        this.transactions=transactions
+        this.transactions=transactions.allTransactions()
     }
     val parentHash: String
     val nonce:Int
     val content:String
     val blockHash:String
-    val transactions:Transactions
+    val transactions:List<Transaction>
     fun isGenesis() = parentHash.isEmpty()
 
     override fun toString(): String {
-        return "Block(nonce=$nonce, content='$content', parentHash='$parentHash', blockHash='$blockHash')"
+        return "Block(nonce=$nonce, content='$content', parentHash='$parentHash', blockHash='$blockHash', transactions='${transactions.toString()})"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -56,6 +57,7 @@ class Block{
         if (parentHash != other.parentHash) return false
         if (content != other.content) return false
         if (blockHash != other.blockHash) return false
+        if (transactions != other.transactions) return false
 
         return true
     }

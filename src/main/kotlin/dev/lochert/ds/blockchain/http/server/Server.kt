@@ -86,7 +86,7 @@ class Server{
 
         // Send a node the instruction to add a block
         // /control/add-block/bla (I was lazy and wanted to add blocks via HTTP Get)
-        httpServer!!.createContext("/control/add-block", ControlAddHandler(this, addressList, blockChain))
+        httpServer!!.createContext("/control/add-block", ControlAddHandler(this, addressList, blockChain, transactions))
 
         // Sends a message to each node in the address list and asks them for their addresses
         httpServer!!.createContext("/control/populate-addresslist", ControlAddrPopulateHandler(blockChain))
