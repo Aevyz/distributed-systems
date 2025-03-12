@@ -11,6 +11,8 @@ data class Message(val message:String){
         val blockAlreadyExists = Message("Block Already is Part of Blockchain")
         val blockAddedSuccessfully = Message(" Added Successfully")
 
+        val transactionAddedSuccessfully = Message("Transaction added to list")
+        val transactionAlreadyExists = Message("Transaction Already is in list")
         fun exceptionMessage(e:Exception): Message {
             return Message("${e.javaClass}:\t${e.message}")
         }

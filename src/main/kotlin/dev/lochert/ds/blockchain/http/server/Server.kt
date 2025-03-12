@@ -37,6 +37,7 @@ class Server{
         this.port = port
         this.addressList = addressList
         this.blockChain = blockChain
+        this.transactions = Transactions()
     }
 
     constructor(port:UShort = 9999U) {
@@ -77,9 +78,11 @@ class Server{
         httpServer!!.createContext("/block/hash/from", BlocksHandlerHash(blockChain))
 
         // Get all saved transactions
-        httpServer!!.createContext( "/transactions/all", TransactionsHandler(transactions))
-
-        httpServer!!.createContext( "/transactions/create", TransactionsHandler(transactions))
+        httpServer!!.createContext( "/transactions/all", TransactionsHandler(addressList, transactions))
+        // Generate a random transaction
+        httpServer!!.createContext( "/transactions/create", TransactionsHandler(addressList, transactions))
+        // post endpoint
+        httpServer!!.createContext( "/transactions/post", TransactionsHandler(addressList, transactions))
 
         // Send a node the instruction to add a block
         // /control/add-block/bla (I was lazy and wanted to add blocks via HTTP Get)

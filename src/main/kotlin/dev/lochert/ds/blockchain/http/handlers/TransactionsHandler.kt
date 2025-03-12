@@ -2,21 +2,35 @@ package dev.lochert.ds.blockchain.http.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
+import dev.lochert.ds.blockchain.Transactions.Transaction
 import dev.lochert.ds.blockchain.Transactions.Transactions
+import dev.lochert.ds.blockchain.address.AddressList
+import dev.lochert.ds.blockchain.http.HttpUtil
 import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
+import dev.lochert.ds.blockchain.http.Message
 import kotlinx.serialization.json.Json
+import kotlin.concurrent.thread
 
-class TransactionsHandler(val transactions: Transactions) : HttpHandler {
+class TransactionsHandler(val addressList: AddressList, val transactions: Transactions) : HttpHandler {
     override fun handle(exchange: HttpExchange) {
-        println("Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
-
-        val path = exchange.requestURI.path
-        val parts = path.split("/")
-
-        if (parts.size != 3) {
+        println("${addressList.ownAddress}: Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
+        val parts = exchange.requestURI.path.split("/")
+        if (parts.size != 3 && parts[1] != "transactions") {
             sendResponse(exchange, "Invalid request format", 400)
             return
         }
+
+        when (exchange.requestMethod) {
+            "GET" -> handleGet(exchange)
+            "POST" -> handlePost(exchange)
+            else -> sendResponse(exchange, "Method Not Allowed", 405)
+        }
+    }
+
+    private fun handleGet(exchange: HttpExchange) {
+        val path = exchange.requestURI.path
+        //val parts = path.split("/")
+
         if (path.equals("/transactions/all")) {
             println("all transactions")
             val test = transactions.allTransactions()
@@ -29,9 +43,74 @@ class TransactionsHandler(val transactions: Transactions) : HttpHandler {
             //val newTransaction = Transaction("A", "B", 1.5)
             val transaction = transactions.addRandomTransactionToList()
             val response = Json.encodeToString(transaction.toString())
+            propagateTransaction(transaction)
             sendResponse(exchange, response, 200)
             return
         }
         sendResponse(exchange, "Request format not mapped", 400)
+    }
+
+    private fun handlePost(exchange: HttpExchange) {
+
+        println("${addressList.ownAddress}\t Handle Post Begin")
+        val requestBody = exchange.requestBody.bufferedReader().use { it.readText() }
+        println("${addressList.ownAddress}\t Handle Post Request Body")
+        val transaction = try {
+            println("${addressList.ownAddress}\t Handle Post Request Decode")
+            Json.decodeFromString<Transaction>(requestBody)
+        } catch (e: Exception) {
+            sendResponse(exchange, "Invalid JSON format", 400) // Bad Request
+            return
+        }
+        synchronized(transactions) {
+            when {
+                transactions.doesTransactionExist(transaction) -> sendResponse(
+                    exchange,
+                    Message.transactionAlreadyExists,
+                    208
+                ) // Already in ledger
+                else -> {
+                    try {
+                        transactions.addTransactionToList(transaction) // Add transaction
+                        println("${addressList.ownAddress}: Adding $transaction to transactions")
+                        sendResponse(exchange, Json.encodeToString(Message.transactionAddedSuccessfully), 201) // Created
+                        propagateTransaction(transaction)
+                    } catch (e: Exception) {
+                        println(
+                            "\n" +
+                                    "\n" +
+                                    "\nPANIC"
+                        )
+                        e.printStackTrace()
+                    }
+
+                }
+
+            }
+
+            println("${addressList.ownAddress}\t Handle Post Request End")
+        }
+    }
+
+    private fun propagateTransaction(transaction: Transaction){
+        var responseCodes: List<Pair<String, Pair<Int, String>>> = listOf()
+        thread {
+
+            println("${addressList.ownAddress}: Propagating transaction to ${addressList.addressList}")
+            responseCodes = addressList.addressList.mapNotNull {
+                try {
+                    Pair(it.toString(), HttpUtil.sendPostRequest(it.toUrl("transactions/post"), Json.encodeToString(transaction)))
+                }
+                catch (e:Exception){
+                    println("${addressList.ownAddress}): Exception trying to send a transaction (POST /transaction) to $it - ${e.javaClass}")
+                    e.printStackTrace()
+                    null
+                }
+            }
+
+            println("${addressList.ownAddress}: Response Codes for Transaction Propagation (${responseCodes.size})")
+            responseCodes.forEach { println("\t- $it") }
+        }
+
     }
 }

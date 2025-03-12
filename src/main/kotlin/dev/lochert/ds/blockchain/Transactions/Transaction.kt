@@ -1,7 +1,7 @@
 package dev.lochert.ds.blockchain.Transactions
 
 import kotlinx.serialization.Serializable
-
+@Serializable
 class Transaction {
     constructor(sender:String, receiver:String, amount:Double){
         this.sender = sender
