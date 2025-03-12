@@ -9,18 +9,18 @@ import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.block.Block
 import dev.lochert.ds.blockchain.block.BlockChain
+import dev.lochert.ds.blockchain.getOwnIpAddress
 import dev.lochert.ds.blockchain.http.HttpUtil
 import dev.lochert.ds.blockchain.http.handlers.*
 import dev.lochert.ds.blockchain.http.server.strategy.address.naive.NaiveStrategy
 import dev.lochert.ds.blockchain.http.server.strategy.address.subgraph.SubgraphStrategy
 import dev.lochert.ds.blockchain.isAlphanumeric
 import kotlinx.serialization.json.Json
-import java.net.InetAddress
 import java.net.InetSocketAddress
 
 class Server{
 
-    val hostname: String = InetAddress.getLocalHost().hostName
+    val hostname: String = getOwnIpAddress()
     val port: UShort
     val addressList: AddressList
     var blockChain: BlockChain

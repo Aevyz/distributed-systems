@@ -1,13 +1,17 @@
 plugins {
     kotlin("jvm") version "2.0.20"
     kotlin("plugin.serialization") version "2.1.10"
+    application
 }
 
 group = "dev.lochert.agrok"
 version = "1.0-SNAPSHOT"
-
 repositories {
     mavenCentral()
+}
+
+application {
+    mainClass = "dev.lochert.ds.blockchain.http.server.DockerInitKt"
 }
 
 dependencies {

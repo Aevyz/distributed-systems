@@ -3,10 +3,10 @@ package dev.lochert.ds.blockchain.http.server.strategy.address.subgraph
 import dev.lochert.ds.blockchain.Constants
 import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
+import dev.lochert.ds.blockchain.getOwnIpAddress
 import dev.lochert.ds.blockchain.http.HttpUtil
 import dev.lochert.ds.blockchain.http.server.strategy.address.subgraph.Graph.Companion.printConnectedComponents
 import kotlinx.serialization.json.Json
-import java.net.InetAddress
 
 object SubgraphStrategy {
     fun queryForAddresses(listOfAddresses:Set<Address>):Map<Address, Set<Address>>{
@@ -80,5 +80,5 @@ object SubgraphStrategy {
     }
 }
 fun main(){
-    SubgraphStrategy.executeSubGraphStrategy(Address(InetAddress.getLocalHost().hostName, 8080U))
+    SubgraphStrategy.executeSubGraphStrategy(Address(getOwnIpAddress(), 8080U))
 }
