@@ -1,5 +1,6 @@
 package dev.lochert.ds.blockchain.block
 
+import dev.lochert.ds.blockchain.Transactions.Transactions
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -23,19 +24,22 @@ class Block{
 
         nonce = tNonce
         blockHash = tHash!!.toHexString()
+        transactions = Transactions()
     }
-    constructor(parentHash:String, nonce:Int, content:String, blockHash:String){
+    constructor(parentHash:String, nonce:Int, content:String, blockHash:String, transactions: Transactions){
         assert(parentHash.isNotBlank()){"Parent Hash cannot be empty"}
         assert(isValid(parentHash, nonce, content, blockHash)){"Block is not valid"}
         this.parentHash = parentHash
         this.nonce=nonce
         this.content=content
         this.blockHash=blockHash
+        this.transactions=transactions
     }
     val parentHash: String
     val nonce:Int
     val content:String
     val blockHash:String
+    val transactions:Transactions
     fun isGenesis() = parentHash.isEmpty()
 
     override fun toString(): String {

@@ -1,5 +1,7 @@
 package dev.lochert.ds.blockchain.block
 
+import dev.lochert.ds.blockchain.Transactions.Transactions
+
 class BlockChain(genesisBlock: Block){
     val listOfBlocks = mutableListOf(genesisBlock)
 
@@ -11,8 +13,8 @@ class BlockChain(genesisBlock: Block){
         listOfBlocks.add(block)
         return block
     }
-    fun addBlock(content:String): Block {
-        return addBlock(BlockProposal(listOfBlocks.last().blockHash, content))
+    fun addBlock(content:String, transactions: Transactions): Block {
+        return addBlock(BlockProposal(listOfBlocks.last().blockHash, content, transactions))
     }
     fun addBlock(blockProposal: BlockProposal): Block {
         return addBlock(blockProposal.generateBlock())

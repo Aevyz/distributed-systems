@@ -2,7 +2,7 @@ package dev.lochert.ds.blockchain.Transactions
 
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
-
+@Serializable
 class Transactions() {
     val listOfTransactions = mutableListOf<Transaction>()
 
