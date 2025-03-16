@@ -1,14 +1,10 @@
 package dev.lochert.ds.blockchain.address
 
-import dev.lochert.ds.blockchain.Constants
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
 class AddressList(val ownAddress: Address, val addressList: MutableSet<Address> = mutableSetOf()){
-    init{
-//        Constants.initialAddressSet.forEach{addAddress(it)}
-    }
     fun addressListToJson(): String {
         return Json.encodeToString(addressList)
     }
