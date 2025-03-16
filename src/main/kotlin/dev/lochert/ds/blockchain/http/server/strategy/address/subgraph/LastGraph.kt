@@ -7,6 +7,6 @@ object LastGraph {
     var lastGraph = "No Graph Generated So Far"
 
     fun updateGraph(address: Address = Address(getOwnIpAddress(), 8080U)) {
-        SubgraphStrategy.executeSubGraphStrategy(address, update = false)
+        SubgraphStrategy.executeSubGraphStrategy(address, update = false, ignoreLimit = true)
     }
 }
