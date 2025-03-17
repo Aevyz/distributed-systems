@@ -18,6 +18,10 @@ class Transactions() {
 
     }
 
+    fun addTransactionToList(sender: String, recipient:String, amount:Double) {
+        addTransactionToList(Transaction(sender, recipient, amount))
+    }
+
     fun addRandomTransactionToList(): Transaction {
         val sender = generateAlphanumericString(4)
         val receiver = generateAlphanumericString(4)
@@ -53,5 +57,10 @@ class Transactions() {
         } else {
             println("Couldn't delete transaction")
         }
+    }
+
+    fun clearTransactions() {
+        println("clearing transactions")
+        listOfTransactions.clear()
     }
 }
