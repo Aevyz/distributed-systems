@@ -15,6 +15,8 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
     override fun handle(exchange: HttpExchange) {
         println("${addressList.ownAddress}: Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
         val parts = exchange.requestURI.path.split("/")
+
+        // If somehow query was aimed at it from some other url
         if (parts[1] != "transactions") {
             sendResponse(exchange, "Invalid request format", 400)
             return
@@ -31,6 +33,7 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
         val path = exchange.requestURI.path
         val parts = path.split("/")
 
+        // Returns all transactions
         if (path.equals("/transactions/all")) {
             println("all transactions")
             val test = transactions.allTransactions()
@@ -38,6 +41,7 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
             sendResponse(exchange, response, 200)
             return
         }
+        // If no values are given, then generates a transaction with random values
         if (path.equals("/transactions/create")) {
             println("create transaction")
             //val newTransaction = Transaction("A", "B", 1.5)
@@ -47,6 +51,7 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
             sendResponse(exchange, response, 200)
             return
         }
+        // If values are given, then generates a transaction with provided values
         if (parts[2] == "create" && parts.size == 6) {
             val transaction = transactions.addTransactionToList(parts[4], parts[5], parts[6].toDouble())
             val response = Json.encodeToString(transaction.toString())
@@ -80,7 +85,11 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
                     try {
                         transactions.addTransactionToList(transaction) // Add transaction
                         println("${addressList.ownAddress}: Adding $transaction to transactions")
-                        sendResponse(exchange, Json.encodeToString(Message.transactionAddedSuccessfully), 201) // Created
+                        sendResponse(
+                            exchange,
+                            Json.encodeToString(Message.transactionAddedSuccessfully),
+                            201
+                        ) // Created
                         propagateTransaction(transaction)
                     } catch (e: Exception) {
                         println(
@@ -91,33 +100,36 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
                         e.printStackTrace()
                     }
 
-                    }
-
                 }
 
-                println("${addressList.ownAddress}\t Handle Post Request End")
+            }
+
+            println("${addressList.ownAddress}\t Handle Post Request End")
         }
     }
 
-        private fun propagateTransaction(transaction: Transaction) {
-            var responseCodes: List<Pair<String, Pair<Int, String>>> = listOf()
-            thread {
+    // Sends out a transaction to other nodes
+    private fun propagateTransaction(transaction: Transaction) {
+        var responseCodes: List<Pair<String, Pair<Int, String>>> = listOf()
+        thread {
 
             println("${addressList.ownAddress}: Propagating transaction to ${addressList.addressList}")
             responseCodes = addressList.addressList.mapNotNull {
                 try {
-                    Pair(it.toString(), HttpUtil.sendPostRequest(it.toUrl("transactions/post"), Json.encodeToString(transaction)))
-                }
-                catch (e:Exception){
+                    Pair(
+                        it.toString(),
+                        HttpUtil.sendPostRequest(it.toUrl("transactions/post"), Json.encodeToString(transaction))
+                    )
+                } catch (e: Exception) {
                     println("${addressList.ownAddress}): Exception trying to send a transaction (POST /transaction) to $it - ${e.javaClass}")
                     e.printStackTrace()
                     null
                 }
             }
 
-                println("${addressList.ownAddress}: Response Codes for Transaction Propagation (${responseCodes.size})")
-                responseCodes.forEach { println("\t- $it") }
-            }
-
+            println("${addressList.ownAddress}: Response Codes for Transaction Propagation (${responseCodes.size})")
+            responseCodes.forEach { println("\t- $it") }
         }
+
     }
+}

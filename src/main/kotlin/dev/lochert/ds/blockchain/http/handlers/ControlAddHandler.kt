@@ -34,6 +34,7 @@ class ControlAddHandler(server: Server, addressList: AddressList, val pBlockChai
         val block = pBlockChain.addBlock(content, transactionsToBuildBlock)
         sendResponse(exchange, Json.encodeToString(block.blockHash), 200)
         propagateBlock(block)
+        // As Block was created, the Transactions used should be removed.
         transactions.removeTransactions(transactionsToBuildBlock.allTransactions())
     }
 }

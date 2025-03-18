@@ -8,6 +8,7 @@ class Transactions() {
 
     fun allTransactions():List<Transaction> = listOfTransactions.toList()
 
+    // Add transaction to the transactions list
     fun addTransactionToList(newTransaction: Transaction) {
         if (doesTransactionExist(newTransaction)) {
             println("Can't add a duplicate transaction to list")
@@ -18,12 +19,14 @@ class Transactions() {
 
     }
 
+    // Add a transaction to the transactions list with provided values
     fun addTransactionToList(sender: String, recipient:String, amount:Double): Transaction {
         val transaction = Transaction(sender, recipient, amount)
         addTransactionToList(transaction)
         return transaction
     }
 
+    // Add a transaction with random values to the transactions list
     fun addRandomTransactionToList(): Transaction {
         val sender = generateAlphanumericString(4)
         val receiver = generateAlphanumericString(4)
@@ -32,8 +35,11 @@ class Transactions() {
         addTransactionToList(newTransaction)
         return newTransaction
     }
+
+    // Create a list of valid characters
     val alphanumeric = ('A'..'Z') + ('a'..'z') + ('0'..'9')
 
+    // Creates a String containing x random characters
     fun generateAlphanumericString(length: Int) : String {
         // The buildString function will create a StringBuilder
         return buildString {
@@ -43,6 +49,7 @@ class Transactions() {
         }
     }
 
+    // Checks if transaction is in the transactions list
     fun doesTransactionExist(queryTransaction: Transaction): Boolean {
         listOfTransactions.forEach{
             if (queryTransaction.equals(it)) {
@@ -52,6 +59,7 @@ class Transactions() {
         return false
     }
 
+    // Removes given transactions from the transactions list
     fun removeTransactions(queryTransactions: List<Transaction>) {
         queryTransactions.forEach{
             if (doesTransactionExist(it)) {
@@ -63,6 +71,7 @@ class Transactions() {
         }
     }
 
+    // Clears transaction list
     fun clearTransactions() {
         println("clearing transactions")
         listOfTransactions.clear()

@@ -6,8 +6,8 @@ import dev.lochert.ds.blockchain.block.BlockChain
 import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
 import kotlinx.serialization.json.Json
 
-// Partially inspired by ChatGPT
 class BlocksHandlerHash(val blockChain: BlockChain) : HttpHandler {
+    // Send blocks from the blockchain starting with the provided hash
     override fun handle(exchange: HttpExchange) {
         println("Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
 
