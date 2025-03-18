@@ -15,7 +15,7 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
     override fun handle(exchange: HttpExchange) {
         println("${addressList.ownAddress}: Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
         val parts = exchange.requestURI.path.split("/")
-        if (parts.size != 3 && parts[1] != "transactions") {
+        if (parts[1] != "transactions") {
             sendResponse(exchange, "Invalid request format", 400)
             return
         }
@@ -29,7 +29,7 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
 
     private fun handleGet(exchange: HttpExchange) {
         val path = exchange.requestURI.path
-        //val parts = path.split("/")
+        val parts = path.split("/")
 
         if (path.equals("/transactions/all")) {
             println("all transactions")
@@ -42,6 +42,13 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
             println("create transaction")
             //val newTransaction = Transaction("A", "B", 1.5)
             val transaction = transactions.addRandomTransactionToList()
+            val response = Json.encodeToString(transaction.toString())
+            propagateTransaction(transaction)
+            sendResponse(exchange, response, 200)
+            return
+        }
+        if (parts[2] == "create" && parts.size == 6) {
+            val transaction = transactions.addTransactionToList(parts[4], parts[5], parts[6].toDouble())
             val response = Json.encodeToString(transaction.toString())
             propagateTransaction(transaction)
             sendResponse(exchange, response, 200)
@@ -84,17 +91,17 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
                         e.printStackTrace()
                     }
 
+                    }
+
                 }
 
-            }
-
-            println("${addressList.ownAddress}\t Handle Post Request End")
+                println("${addressList.ownAddress}\t Handle Post Request End")
         }
     }
 
-    private fun propagateTransaction(transaction: Transaction){
-        var responseCodes: List<Pair<String, Pair<Int, String>>> = listOf()
-        thread {
+        private fun propagateTransaction(transaction: Transaction) {
+            var responseCodes: List<Pair<String, Pair<Int, String>>> = listOf()
+            thread {
 
             println("${addressList.ownAddress}: Propagating transaction to ${addressList.addressList}")
             responseCodes = addressList.addressList.mapNotNull {
@@ -108,9 +115,9 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
                 }
             }
 
-            println("${addressList.ownAddress}: Response Codes for Transaction Propagation (${responseCodes.size})")
-            responseCodes.forEach { println("\t- $it") }
-        }
+                println("${addressList.ownAddress}: Response Codes for Transaction Propagation (${responseCodes.size})")
+                responseCodes.forEach { println("\t- $it") }
+            }
 
+        }
     }
-}

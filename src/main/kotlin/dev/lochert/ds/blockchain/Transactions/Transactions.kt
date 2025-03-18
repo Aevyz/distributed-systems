@@ -18,8 +18,10 @@ class Transactions() {
 
     }
 
-    fun addTransactionToList(sender: String, recipient:String, amount:Double) {
-        addTransactionToList(Transaction(sender, recipient, amount))
+    fun addTransactionToList(sender: String, recipient:String, amount:Double): Transaction {
+        val transaction = Transaction(sender, recipient, amount)
+        addTransactionToList(transaction)
+        return transaction
     }
 
     fun addRandomTransactionToList(): Transaction {
@@ -50,12 +52,14 @@ class Transactions() {
         return false
     }
 
-    fun removeTransaction(queryTransaction: Transaction) {
-        if (doesTransactionExist(queryTransaction)) {
-            println("removing transaction: " + queryTransaction.toString())
-            listOfTransactions.remove(queryTransaction)
-        } else {
-            println("Couldn't delete transaction")
+    fun removeTransactions(queryTransactions: List<Transaction>) {
+        queryTransactions.forEach{
+            if (doesTransactionExist(it)) {
+                println("removing transaction: " + queryTransactions.toString())
+                listOfTransactions.remove(it)
+            } else {
+                println("Couldn't delete transaction")
+            }
         }
     }
 

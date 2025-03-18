@@ -34,6 +34,6 @@ class ControlAddHandler(server: Server, addressList: AddressList, val pBlockChai
         val block = pBlockChain.addBlock(content, transactionsToBuildBlock)
         sendResponse(exchange, Json.encodeToString(block.blockHash), 200)
         propagateBlock(block)
-        transactions.clearTransactions()
+        transactions.removeTransactions(transactionsToBuildBlock.allTransactions())
     }
 }

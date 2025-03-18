@@ -3,7 +3,6 @@ package dev.lochert.ds.blockchain.http.server
 import com.sun.net.httpserver.HttpServer
 import dev.lochert.ds.blockchain.AddressStrategyEnum
 import dev.lochert.ds.blockchain.Constants
-import dev.lochert.ds.blockchain.Transactions.Transaction
 import dev.lochert.ds.blockchain.Transactions.Transactions
 import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
