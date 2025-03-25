@@ -2,9 +2,7 @@ package dev.lochert.ds.blockchain.http.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
-import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.block.Block
-import dev.lochert.ds.blockchain.block.BlockChain
 import dev.lochert.ds.blockchain.http.HttpUtil
 import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
 import dev.lochert.ds.blockchain.http.Message
@@ -18,9 +16,12 @@ import kotlin.concurrent.thread
  * - GET: Returns all blocks
  * - POST: Accepts a new block proposal (validates and adds it)
  */
-open class BlockHandler(val server:Server, val addressList: AddressList, val blockChain: BlockChain) : HttpHandler {
+open class BlockHandler(val server: Server) : HttpHandler {
+
+    val addressList = server.addressList
 
     override fun handle(exchange: HttpExchange) {
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*")
         println("${addressList.ownAddress}: Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
         when (exchange.requestMethod) {
             "GET" -> handleGet(exchange)
@@ -30,7 +31,7 @@ open class BlockHandler(val server:Server, val addressList: AddressList, val blo
     }
 
     private fun handleGet(exchange: HttpExchange) {
-        val response = Json.encodeToString(blockChain.listOfBlocks)
+        val response = Json.encodeToString(server.blockChain.listOfBlocks)
         sendResponse(exchange, response, 200)
     }
 
@@ -46,29 +47,29 @@ open class BlockHandler(val server:Server, val addressList: AddressList, val blo
             sendResponse(exchange, "Invalid JSON format", 400) // Bad Request
             return
         }
-        synchronized(blockChain) {
+        synchronized(server.blockChain) {
             when {
-                blockChain.listOfBlocks.last().blockHash == block.blockHash -> sendResponse(
+                server.blockChain.listOfBlocks.last().blockHash == block.blockHash -> sendResponse(
                     exchange,
                     Message.blockAlreadyExists,
                     208
                 ) // Already Reported
 
                 // Have to use custom response codes because the 400 block throws an exception
-                blockChain.listOfBlocks.contains(block) -> sendResponse(
+                server.blockChain.listOfBlocks.contains(block) -> sendResponse(
                     exchange,
                     Message.OutdatedBlockchain,
                     298 // Custom HTTP Code
                 ) // Conflict
-                blockChain.listOfBlocks.last().blockHash != block.parentHash -> sendResponse(
+                server.blockChain.listOfBlocks.last().blockHash != block.parentHash -> sendResponse(
                     exchange,
                     Message.ParentHashDoesNotMatch,
                     299 //Custom HTTP Code
                 )
                 else -> {
                     try {
-                        blockChain.addBlock(block) // Add block
-                        println("${addressList.ownAddress}: Adding ${block.content} to blockchain (${blockChain.listOfBlocks.map { it.content }})")
+                        server.blockChain.addBlock(block) // Add block
+                        println("${addressList.ownAddress}: Adding ${block.content} to blockchain (${server.blockChain.listOfBlocks.map { it.content }})")
                         sendResponse(exchange, Json.encodeToString(Message.blockAlreadyExists), 201) // Created
                         propagateBlock(block)
                         server.transactions.removeTransactions(block.transactions)
@@ -99,7 +100,7 @@ open class BlockHandler(val server:Server, val addressList: AddressList, val blo
      * Plus it easy to end up in a loop situation, in which the read timeout is hit
      */
     protected fun propagateBlock(block: Block){
-        var responseCodes: List<Pair<String, Pair<Int, String>>> = listOf()
+        var responseCodes: List<Pair<String, Pair<Int, String>>>
         thread {
 
             println("${addressList.ownAddress}: Propagating to ${addressList.addressList}")

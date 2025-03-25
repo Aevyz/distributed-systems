@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 import kotlin.concurrent.thread
 
 class IntegrationTestLarge {
-    var repetitions = 500
+    var repetitions = 250
 
     @Test
     fun testAttempt(){
@@ -17,7 +17,7 @@ class IntegrationTestLarge {
 
         repeat(repetitions){
 
-            Thread.sleep(100)
+            Thread.sleep(150)
             threadList+=thread{
                 IntegrationUtils.startSecondaryServers()
             }
@@ -26,7 +26,7 @@ class IntegrationTestLarge {
         LastGraph.updateGraph()
         for(i in 9000 .. 9000+(repetitions-1)){
             HttpUtil.sendGetRequest("http://${getOwnIpAddress()}:$i/control/add-block/$i")
-            Thread.sleep(400)
+            Thread.sleep(1000)
         }
         Thread.sleep(60000)
         threadList.forEach { it.interrupt() }

@@ -1,6 +1,8 @@
 package dev.lochert.ds.blockchain
 
 import dev.lochert.ds.blockchain.address.Address
+import java.security.SecureRandom
+import kotlin.random.Random
 
 object Constants {
     var DIFFICULTY = 2
@@ -15,13 +17,28 @@ object Constants {
 
     var addressStrategy = AddressStrategyEnum.Subgraph
 
-    // Address Search goes 3 deep or terminates at 20 connections
-    var subgraphMaxDepth = 3
+    // Address Search goes 4 deep or terminates at 20 connections
+    // Minimum of 3 needed
+    var subgraphMaxDepth = 4
     var subgraphMaxSearch = 20
 
     // Connect at 3 points
     var subgraphConnectionPoints = 3
+
+    var maintainIntervalSeconds: Long = 60
+    var maintainAddressStrategies = setOf(
+        AddressMaintenanceStrategyEnum.NoGreaterThirdDegree,
+        AddressMaintenanceStrategyEnum.SubgraphConnection,
+        AddressMaintenanceStrategyEnum.BackupToFile,
+        AddressMaintenanceStrategyEnum.RemoveUnresponsiveNodes
+    )
+    var maintainBlockchain: BlockchainMaintenanceStrategyEnum? =
+        BlockchainMaintenanceStrategyEnum.ImmediateLongestLowestHash
+    var enableMaintainLoop = true
+    var readAddressBook = false
+
+    var setRandom = Random(SecureRandom().nextInt())
+
+
 }
-
-
 

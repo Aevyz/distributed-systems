@@ -1,5 +1,6 @@
 package dev.lochert.ds.blockchain
 
+import dev.lochert.ds.blockchain.block.BlockChain
 import java.net.Inet4Address
 import java.net.NetworkInterface
 
@@ -19,6 +20,8 @@ fun getOwnIpAddress(): String {
     }
     throw IllegalStateException("No valid IP address found")
 }
+
+fun BlockChain.lastInfo() = "${this.lastHash().slice(0..4)} (${this.listOfBlocks.size})"
 
 fun main() {
     println(getOwnIpAddress())
