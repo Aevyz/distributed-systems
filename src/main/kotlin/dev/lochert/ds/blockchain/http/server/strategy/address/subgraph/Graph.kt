@@ -22,6 +22,7 @@ class Graph() {
         val visited = mutableSetOf<Node>()
         val components = mutableListOf<Set<Node>>()
 
+        // Make consistent for Unit Tests
         for (node in nodes) {
             if (node !in visited) {
                 val component = mutableSetOf<Node>()
@@ -55,12 +56,18 @@ class Graph() {
                     rSet.addAll(it.sortedBy { it.toString() }.take(Constants.subgraphConnectionPoints).map { it.address })
                 } else {
                     // Shuffle the connected nodes, take 3 elems
-                    rSet.addAll(it.shuffled().take(Constants.subgraphConnectionPoints).map { it.address })
+                    rSet.addAll(
+                        it.shuffled(Constants.setRandom).take(Constants.subgraphConnectionPoints).map { it.address })
                 }
             }
         }
         return rSet
     }
+
+    override fun toString(): String {
+        return "Graph(nodes=$nodes)"
+    }
+
     companion object{
         val unitTestMode: Boolean = false
 

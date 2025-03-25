@@ -16,6 +16,7 @@ import kotlinx.serialization.json.Json
  */
 class AddressHandler(val addressList: AddressList) : HttpHandler {
     override fun handle(exchange: HttpExchange) {
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*")
         println("${addressList.ownAddress}: Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
         when (exchange.requestMethod) {
             "GET" -> handleGet(exchange)

@@ -30,13 +30,12 @@ object HttpUtil {
         return Pair(responseCode, responseMessage)
     }
 
-    fun sendGetRequest(url: String): Pair<Int, String> {
+    fun sendGetRequest(url: String, connectionTimeout: Int = 5000): Pair<Int, String> {
         val connection = URI.create(url).toURL().openConnection() as HttpURLConnection
-        connection.connectTimeout=5000
+        connection.connectTimeout = connectionTimeout
         connection.readTimeout=10000
         connection.requestMethod = "GET"
         connection.setRequestProperty("Accept", "application/json")
-
         // Read response
         val responseCode = connection.responseCode
         val responseMessage = connection.inputStream.bufferedReader().use { it.readText() }
