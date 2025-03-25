@@ -1,11 +1,9 @@
 package dev.lochert.ds.blockchain.http.server
 
 import com.sun.net.httpserver.HttpServer
-import dev.lochert.ds.blockchain.AddressStrategyEnum
-import dev.lochert.ds.blockchain.Constants
-import dev.lochert.ds.blockchain.Transactions.Transactions
 import dev.lochert.ds.blockchain.*
 import dev.lochert.ds.blockchain.Constants.maintainIntervalSeconds
+import dev.lochert.ds.blockchain.Transactions.Transactions
 import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.block.Block
@@ -27,7 +25,7 @@ class Server{
     var blockChain: BlockChain
     var enableMaintainLoop = Constants.enableMaintainLoop
     var maintainThread: Thread? = null
-    var transactions: Transactions = Transactions()
+    val transactions: Transactions = Transactions()
     // Initial Constructor
     @Deprecated("Don't use this")
     constructor(){
@@ -83,14 +81,14 @@ class Server{
         httpServer!!.createContext("/address-graph.svg", AddressGraphHandler(addressList))
 
         // Block handlers (GET & POST)
-        httpServer!!.createContext("/block", BlockHandler(this, addressList))
+        httpServer!!.createContext("/block", BlockHandler(this))
 
         // Get a specific block by hash or by index (genesis block is 0)
-        httpServer!!.createContext("/block/hash", BlockHandlerHash(blockChain))
-        httpServer!!.createContext("/block/index", BlockHandlerIndex(blockChain))
+        httpServer!!.createContext("/block/hash", BlockHandlerHash(this))
+        httpServer!!.createContext("/block/index", BlockHandlerIndex(this))
 
         // Get blocks starting from block with this hash
-        httpServer!!.createContext("/block/hash/from", BlocksHandlerHash(blockChain))
+        httpServer!!.createContext("/block/hash/from", BlocksHandlerHash(this))
 
         // Get all saved transactions
         httpServer!!.createContext( "/transactions/all", TransactionsHandler(addressList, transactions))
@@ -101,10 +99,8 @@ class Server{
 
         // Send a node the instruction to add a block
         // /control/add-block/bla (I was lazy and wanted to add blocks via HTTP Get)
-        httpServer!!.createContext("/control/add-block", ControlAddHandler(this, addressList, blockChain, transactions))
+        httpServer!!.createContext("/control/add-block", ControlAddHandler(this))
 
-        // Sends a message to each node in the address list and asks them for their addresses
-        httpServer!!.createContext("/control/populate-addresslist", ControlAddrPopulateHandler(blockChain))
 
         httpServer!!.executor = null
         httpServer!!.start()

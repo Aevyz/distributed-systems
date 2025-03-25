@@ -2,8 +2,6 @@ package dev.lochert.ds.blockchain.http.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import dev.lochert.ds.blockchain.Transactions.Transactions
-import dev.lochert.ds.blockchain.address.AddressList
-import dev.lochert.ds.blockchain.block.BlockChain
 import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
 import dev.lochert.ds.blockchain.http.server.Server
 import kotlinx.serialization.json.Json
@@ -12,9 +10,12 @@ import kotlinx.serialization.json.Json
 /**
  * Handles `/control/add-block/{string}` for adding a block based on string content.
  */
-class ControlAddHandler(server: Server, addressList: AddressList, val pBlockChain: BlockChain, val transactions: Transactions) : BlockHandler(server, addressList) {
+class ControlAddHandler(server: Server) : BlockHandler(server) {
     var counter = 0
     override fun handle(exchange: HttpExchange) {
+        val pBlockChain = server.blockChain
+        val transactions = server.transactions
+        val addressList = server.addressList
         println("${addressList.ownAddress}: Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
         val path = exchange.requestURI.path
         val parts = path.split("/")

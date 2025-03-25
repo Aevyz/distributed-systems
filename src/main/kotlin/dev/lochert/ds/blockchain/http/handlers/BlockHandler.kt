@@ -2,7 +2,6 @@ package dev.lochert.ds.blockchain.http.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import com.sun.net.httpserver.HttpHandler
-import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.block.Block
 import dev.lochert.ds.blockchain.http.HttpUtil
 import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
@@ -17,8 +16,9 @@ import kotlin.concurrent.thread
  * - GET: Returns all blocks
  * - POST: Accepts a new block proposal (validates and adds it)
  */
-open class BlockHandler(val server: Server, val addressList: AddressList) : HttpHandler {
+open class BlockHandler(val server: Server) : HttpHandler {
 
+    val addressList = server.addressList
 
     override fun handle(exchange: HttpExchange) {
         exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*")
@@ -100,7 +100,7 @@ open class BlockHandler(val server: Server, val addressList: AddressList) : Http
      * Plus it easy to end up in a loop situation, in which the read timeout is hit
      */
     protected fun propagateBlock(block: Block){
-        var responseCodes: List<Pair<String, Pair<Int, String>>> = listOf()
+        var responseCodes: List<Pair<String, Pair<Int, String>>>
         thread {
 
             println("${addressList.ownAddress}: Propagating to ${addressList.addressList}")
