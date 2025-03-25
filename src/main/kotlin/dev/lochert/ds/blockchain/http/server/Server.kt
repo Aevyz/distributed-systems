@@ -1,20 +1,20 @@
 package dev.lochert.ds.blockchain.http.server
 
 import com.sun.net.httpserver.HttpServer
-import dev.lochert.ds.blockchain.AddressStrategyEnum
-import dev.lochert.ds.blockchain.Constants
+import dev.lochert.ds.blockchain.*
+import dev.lochert.ds.blockchain.Constants.maintainIntervalSeconds
 import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.block.Block
 import dev.lochert.ds.blockchain.block.BlockChain
-import dev.lochert.ds.blockchain.getOwnIpAddress
 import dev.lochert.ds.blockchain.http.HttpUtil
 import dev.lochert.ds.blockchain.http.handlers.*
 import dev.lochert.ds.blockchain.http.server.strategy.address.naive.NaiveStrategy
 import dev.lochert.ds.blockchain.http.server.strategy.address.subgraph.SubgraphStrategy
-import dev.lochert.ds.blockchain.isAlphanumeric
+import dev.lochert.ds.blockchain.http.server.strategy.maintenance.*
 import kotlinx.serialization.json.Json
 import java.net.InetSocketAddress
+import kotlin.concurrent.thread
 
 class Server{
 
@@ -22,12 +22,26 @@ class Server{
     val port: UShort
     val addressList: AddressList
     var blockChain: BlockChain
+    var enableMaintainLoop = Constants.enableMaintainLoop
+    var maintainThread: Thread? = null
     // Initial Constructor
+    @Deprecated("Don't use this")
     constructor(){
         this.port = 8080U
 
         addressList= AddressList(Address(hostname, port))
         blockChain = BlockChain(Block.genesisNode)
+    }
+    constructor(port: UShort = 9999U, initial: Boolean = false) {
+        this.port = port
+        if (initial) {
+            addressList = AddressList(Address(hostname, port))
+            blockChain = BlockChain(Block.genesisNode)
+        } else {
+
+            addressList = queryAddresses(Address(hostname, port))
+            blockChain = queryBlockChain(addressList)
+        }
     }
     constructor(port:UShort, addressList: AddressList, blockChain: BlockChain) {
         this.port = port
@@ -35,11 +49,6 @@ class Server{
         this.blockChain = blockChain
     }
 
-    constructor(port:UShort = 9999U) {
-        this.port = port
-        addressList = queryAddresses(Address(hostname, port))
-        blockChain = queryBlockChain(addressList)
-    }
     fun queryAddresses(address: Address): AddressList {
         return when(Constants.addressStrategy){
             AddressStrategyEnum.Naive -> NaiveStrategy.queryAddressesNaively(address)
@@ -53,16 +62,18 @@ class Server{
     var httpServer:HttpServer? = null
 
     fun stopServer(){
+        maintainThread?.interrupt()
         httpServer!!.stop(0)
     }
     fun startServer(){
         httpServer = HttpServer.create(InetSocketAddress(port.toInt()), 100)
+        httpServer!!.createContext("/", { HttpUtil.sendResponse(it, "Ok", 200) })
         // Address handlers (GET & POST)
         httpServer!!.createContext("/address", AddressHandler(addressList))
         httpServer!!.createContext("/address-graph.svg", AddressGraphHandler(addressList))
 
         // Block handlers (GET & POST)
-        httpServer!!.createContext("/block", BlockHandler(this, addressList, blockChain))
+        httpServer!!.createContext("/block", BlockHandler(this, addressList))
 
         // Get a specific block by hash or by index (genesis block is 0)
         httpServer!!.createContext("/block/hash", BlockHandlerHash(blockChain))
@@ -78,6 +89,65 @@ class Server{
         httpServer!!.executor = null
         httpServer!!.start()
         println("Server started on port http://$hostname:$port (http://localhost:$port)")
+        maintainThread = thread {
+            try {
+                println("[Maintain] [${addressList.ownAddress}] Maintain Thread with $enableMaintainLoop ($maintainIntervalSeconds)")
+                while (enableMaintainLoop) {
+                    println(maintainIntervalSeconds * 1000L)
+                    Thread.sleep(maintainIntervalSeconds * 1000L)
+                    println("[Maintain] [${addressList.ownAddress}] Loop Awake")
+                    if (Constants.maintainAddressStrategies.contains(AddressMaintenanceStrategyEnum.RemoveUnresponsiveNodes)) {
+                        println("[Maintain] [${addressList.ownAddress}] Removing Unresponsive Nodes")
+                        RemoveInactiveMaintenance().maintain(addressList)
+                    }
+                    if (Constants.maintainAddressStrategies.contains(AddressMaintenanceStrategyEnum.SubgraphConnection)) {
+                        println("[Maintain] [${addressList.ownAddress}] Subgraph Connections")
+                        ConnectionPointMaintenance().maintain(addressList)
+                    }
+                    if (Constants.maintainAddressStrategies.contains(AddressMaintenanceStrategyEnum.NoGreaterThirdDegree)) {
+                        println("[Maintain] [${addressList.ownAddress}] No Three Jump")
+                        NoThreeJumpsMaintenance().maintain(addressList)
+                    }
+                    if (Constants.maintainAddressStrategies.contains(AddressMaintenanceStrategyEnum.BackupToFile)) {
+                        println("[Maintain] [${addressList.ownAddress}] Backing Up to File")
+                        BackupAddressMaintenance().maintain(addressList)
+                    }
+                    when (Constants.maintainBlockchain) {
+                        BlockchainMaintenanceStrategyEnum.ImmediateLongestLowestHash -> {
+                            val currentBlockchain = blockChain
+                            val proposalBlockchain = ImmediateLongestBlockchainLowestHash().maintain(addressList)
+
+                            println("[Maintain] [${addressList.ownAddress}] Should Update Blockchain? ${currentBlockchain.lastInfo()} vs ${proposalBlockchain?.lastInfo()}")
+
+                            if (proposalBlockchain != null) {
+                                if (currentBlockchain.listOfBlocks.size < proposalBlockchain.listOfBlocks.size) {
+                                    blockChain = proposalBlockchain
+                                    println("[Maintain] [${addressList.ownAddress}]: Replace due to size (new = ${proposalBlockchain.lastInfo()})")
+                                    continue
+                                }
+                                if (currentBlockchain.listOfBlocks.size == proposalBlockchain.listOfBlocks.size) {
+//                                    println("${proposalBlockchain.lastHash().compareTo(currentBlockchain.lastHash()) < 0} ${proposalBlockchain.lastHash() < currentBlockchain.lastHash()}")
+
+                                    if (proposalBlockchain.lastHash().compareTo(currentBlockchain.lastHash()) < 0) {
+                                        println("[Maintain] [${addressList.ownAddress}]: Replace due to hash (size same) (new = ${proposalBlockchain.lastInfo()})")
+                                        blockChain = proposalBlockchain
+                                        continue
+                                    }
+                                }
+                                println("[Maintain] [${addressList.ownAddress}] Has Longest Chain")
+                            }
+                        }
+
+                        null -> continue
+                    }
+
+
+                }
+            } catch (e: InterruptedException) {
+                println("[Maintain] [${addressList.ownAddress}] [${addressList.ownAddress}] Shutting Down due to Interrupt")
+            }
+
+        }
     }
     companion object{
         fun queryBlockChain(addressList: AddressList):BlockChain{
@@ -103,7 +173,9 @@ class Server{
                     null
                 }
             }
-            return blockChainsFound.maxBy { it.listOfBlocks.size }
+            return blockChainsFound
+                .sortedWith(compareByDescending<BlockChain> { it.listOfBlocks.size }.thenBy { it.listOfBlocks.last().blockHash })
+                .first()
         }
     }
 

@@ -11,7 +11,8 @@ import kotlinx.serialization.json.Json
 /**
  * Handles `/control/add-block/{string}` for adding a block based on string content.
  */
-class ControlAddHandler(server: Server, addressList: AddressList, val pBlockChain: BlockChain) : BlockHandler(server, addressList, pBlockChain) {
+class ControlAddHandler(server: Server, addressList: AddressList, val pBlockChain: BlockChain) :
+    BlockHandler(server, addressList) {
     var counter = 0
     override fun handle(exchange: HttpExchange) {
         println("${addressList.ownAddress}: Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")

@@ -27,7 +27,10 @@ object SubgraphStrategy {
         return rMap
     }
 
-    fun executeSubGraphStrategy(ownAddress: Address, initialAddressSet: Set<Address> = Constants.initialAddressSet, update:Boolean = true):AddressList{
+    fun createAddressMap(
+        initialAddressSet: Set<Address> = Constants.initialAddressSet,
+        ignoreLimit: Boolean = false
+    ): MutableMap<Address, Set<Address>> {
         val discoveredAddresses = initialAddressSet.toMutableSet()
         val queriedAddresses = mutableSetOf<Address>()
         val addressMap = mutableMapOf<Address, Set<Address>>() // Store the merged results
@@ -35,7 +38,7 @@ object SubgraphStrategy {
         repeat(Constants.subgraphMaxDepth) {
             val newAddresses = discoveredAddresses - queriedAddresses
             // If Discovered Addresses are under the limit and we have new Addresses
-            if (discoveredAddresses.size < Constants.subgraphMaxSearch && !newAddresses.isEmpty()){
+            if ((ignoreLimit || discoveredAddresses.size < Constants.subgraphMaxSearch) && !newAddresses.isEmpty()) {
                 val resultMap = queryForAddresses(newAddresses)
                 queriedAddresses.addAll(newAddresses)
 
@@ -46,7 +49,17 @@ object SubgraphStrategy {
                 }
             }
         }
-        val g = addressMapToGraph(addressMap)
+        return addressMap
+    }
+
+    fun executeSubGraphStrategy(
+        ownAddress: Address,
+        initialAddressSet: Set<Address> = Constants.initialAddressSet,
+        update: Boolean = true,
+        ignoreLimit: Boolean = false
+    ): AddressList {
+
+        val g = addressMapToGraph(createAddressMap(initialAddressSet, ignoreLimit))
 
         printConnectedComponents(g)
         LastGraph.lastGraph = g.toSVG()
@@ -64,17 +77,27 @@ object SubgraphStrategy {
 
         return AddressList(ownAddress, connections)
     }
-    fun addressMapToGraph(addressMap: Map<Address, Set<Address>>): Graph {
+
+    fun addressMapToGraph(addressMap: Map<Address, Set<Address>>, ignoreAddresses: List<Address> = emptyList()): Graph {
         val g = Graph()
         val allNodes = mutableMapOf<Address, Node>()
         (addressMap.keys + addressMap.values.flatten()).toSet().forEach {
-            val node = Node(it)
-            allNodes[it] = node
-            g.addNode(node)
+            if (!ignoreAddresses.contains(it)) {
+                val node = Node(it)
+                allNodes[it] = node
+                g.addNode(node)
+            }
         }
 
-        addressMap.forEach {key, addresses ->
-            addresses.forEach { g.connect(allNodes[key]!!, allNodes[it]!!) }
+
+        addressMap.forEach { (key, addresses) ->
+            if (!ignoreAddresses.contains(key)) {
+                addresses.forEach {
+                    if (!ignoreAddresses.contains(it)) {
+                        g.connect(allNodes[key]!!, allNodes[it]!!)
+                    }
+                }
+            }
         }
         return g
     }

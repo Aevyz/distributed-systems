@@ -1,5 +1,6 @@
 package dev.lochert.ds.blockchain.address
 
+import dev.lochert.ds.blockchain.getOwnIpAddress
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import java.time.Instant
@@ -14,6 +15,8 @@ data class Address(
             "Port must be greater than 0, is $port"
         }
     }
+
+    constructor(port: UShort) : this(getOwnIpAddress(), port)
     @Transient
     var timestamp = Instant.now().epochSecond
 

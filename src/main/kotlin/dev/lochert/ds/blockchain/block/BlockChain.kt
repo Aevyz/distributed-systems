@@ -4,6 +4,9 @@ class BlockChain(genesisBlock: Block){
     val listOfBlocks = mutableListOf(genesisBlock)
 
 
+    fun lastHash(): String {
+        return listOfBlocks.last().blockHash
+    }
     fun allBlocks():List<Block> = listOfBlocks.toList()
     fun addBlock(block: Block): Block {
         assert(Block.isValid(block))
