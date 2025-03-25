@@ -1,5 +1,7 @@
 package dev.lochert.ds.blockchain.block
 
+import dev.lochert.ds.blockchain.Transactions.Transactions
+
 class BlockChain(genesisBlock: Block){
     val listOfBlocks = mutableListOf(genesisBlock)
 
@@ -11,11 +13,29 @@ class BlockChain(genesisBlock: Block){
         listOfBlocks.add(block)
         return block
     }
-    fun addBlock(content:String): Block {
-        return addBlock(BlockProposal(listOfBlocks.last().blockHash, content))
+    fun addBlock(content:String, transactions: Transactions): Block {
+        return addBlock(BlockProposal(listOfBlocks.last().blockHash, content, transactions))
     }
     fun addBlock(blockProposal: BlockProposal): Block {
         return addBlock(blockProposal.generateBlock())
     }
+
+    // Looks for the existence of the provided block in the list
+    fun doesBlockExist(searchHashHex: String): Boolean {
+        listOfBlocks.forEach{
+            if (it.blockHash == searchHashHex) {
+                return true
+            }
+        }
+        return false
+    }
     fun searchForBlock(searchHashHex: String): Block = listOfBlocks.first{it.blockHash.contentEquals(searchHashHex)}
+
+    // Returns the list of blocks starting from the block with the provided hash
+    fun searchForBlocksFrom(searchHashHex: String): MutableList<Block> {
+
+        val startOfSubList = listOfBlocks.indexOf(this.searchForBlock(searchHashHex))
+        val endOfSubList = listOfBlocks.size
+        return listOfBlocks.subList(startOfSubList, endOfSubList)
+    }
 }

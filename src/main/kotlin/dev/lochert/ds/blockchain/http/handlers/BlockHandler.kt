@@ -71,6 +71,8 @@ open class BlockHandler(val server:Server, val addressList: AddressList, val blo
                         println("${addressList.ownAddress}: Adding ${block.content} to blockchain (${blockChain.listOfBlocks.map { it.content }})")
                         sendResponse(exchange, Json.encodeToString(Message.blockAlreadyExists), 201) // Created
                         propagateBlock(block)
+                        server.transactions.removeTransactions(block.transactions)
+
                     } catch (e: Exception) {
                         println(
                             "\n" +

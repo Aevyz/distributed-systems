@@ -3,6 +3,7 @@ package dev.lochert.ds.blockchain.http.server
 import com.sun.net.httpserver.HttpServer
 import dev.lochert.ds.blockchain.AddressStrategyEnum
 import dev.lochert.ds.blockchain.Constants
+import dev.lochert.ds.blockchain.Transactions.Transactions
 import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.block.Block
@@ -22,23 +23,27 @@ class Server{
     val port: UShort
     val addressList: AddressList
     var blockChain: BlockChain
+    var transactions: Transactions
     // Initial Constructor
     constructor(){
         this.port = 8080U
 
         addressList= AddressList(Address(hostname, port))
         blockChain = BlockChain(Block.genesisNode)
+        transactions = Transactions()
     }
     constructor(port:UShort, addressList: AddressList, blockChain: BlockChain) {
         this.port = port
         this.addressList = addressList
         this.blockChain = blockChain
+        this.transactions = Transactions()
     }
 
     constructor(port:UShort = 9999U) {
         this.port = port
         addressList = queryAddresses(Address(hostname, port))
         blockChain = queryBlockChain(addressList)
+        transactions = Transactions()
     }
     fun queryAddresses(address: Address): AddressList {
         return when(Constants.addressStrategy){
@@ -68,9 +73,19 @@ class Server{
         httpServer!!.createContext("/block/hash", BlockHandlerHash(blockChain))
         httpServer!!.createContext("/block/index", BlockHandlerIndex(blockChain))
 
+        // Get blocks starting from block with this hash
+        httpServer!!.createContext("/block/hash/from", BlocksHandlerHash(blockChain))
+
+        // Get all saved transactions
+        httpServer!!.createContext( "/transactions/all", TransactionsHandler(addressList, transactions))
+        // Generate a random transaction
+        httpServer!!.createContext( "/transactions/create", TransactionsHandler(addressList, transactions))
+        // post endpoint
+        httpServer!!.createContext( "/transactions/post", TransactionsHandler(addressList, transactions))
+
         // Send a node the instruction to add a block
         // /control/add-block/bla (I was lazy and wanted to add blocks via HTTP Get)
-        httpServer!!.createContext("/control/add-block", ControlAddHandler(this, addressList, blockChain))
+        httpServer!!.createContext("/control/add-block", ControlAddHandler(this, addressList, blockChain, transactions))
 
         // Sends a message to each node in the address list and asks them for their addresses
         httpServer!!.createContext("/control/populate-addresslist", ControlAddrPopulateHandler(blockChain))

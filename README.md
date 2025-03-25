@@ -38,6 +38,18 @@ All blocks
 ### POST /block
 Add a block to this blockchain
 
+### GET /transactions/all
+All transactions not in blocks
+
+### GET /transactions/create
+Creates a random transaction
+
+### GET /transactions/create/{sender}/{recipient}/{amount}
+Creates a transaction with the given values
+
+### POST /transactions/post
+Add a transaction to the transactions list
+
 ### GET /command/verify-longest-chain
 Query address book and update if longest chain (most work done)
 If multiple with same, take the one with the lowest last hash
