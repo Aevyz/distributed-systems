@@ -61,7 +61,9 @@ Enable reading of previous address books in Constants. Address books are saved t
 
 ## Maintenance
 
-### Blockchain: Longest Chain, Lowest Last Hash (Prototype)
+### Consensus (Maintain Blockchain)
+
+#### Blockchain: Longest Chain, Lowest Last Hash (Prototype)
 
 Queries only neighbors for their longest blockchain. If it is the longest, overwrite own.
 
@@ -74,13 +76,30 @@ Queries only neighbors for their longest blockchain. If it is the longest, overw
 
 ### Address Book
 
+Possible Strategies
+
+- SubgraphConnection
+- NoGreaterThirdDegree
+- RemoveUnresponsiveNodes
+- BackupToFile
+
 #### Subgraph Connection
 
-If less than `subgraphConnectionPoints`
-SubgraphConnection,
-NoGreaterThirdDegree,
-RemoveUnresponsiveNodes,
-BackupToFile
+If less than `subgraphConnectionPoints` (default=3), query graph and at least three points per disjointed subgraph
+found. => Improve Resilience
+
+### No Greater Third Degree
+
+Look for all nodes that are three or more jumps away. Pick a random one and add that to address book. => Improve
+Resilience
+
+### Remove Unresponsive Nodes
+
+If a node does not respond x times, remove it from the address book. => Prevent dead nodes from clogging up Address Book
+
+### Backup To File
+
+Backup address book into a file. You can load the file at startup.
 
 ## Transactions
 Each block contains a "owner" and signature
@@ -112,25 +131,15 @@ Creates a transaction with the given values
 ### POST /transactions/post
 Add a transaction to the transactions list
 
-### GET /command/verify-longest-chain
-Query address book and update if longest chain (most work done)
-If multiple with same, take the one with the lowest last hash
-
 ### GET /command/add-block/<block-msg>
 Tell this node to generate a block with this message
 
-### GET /command/kill
-Shut this node down
-No IPv6 Support
-### GET /command/query-addresses
-1. Naive: Redo Steps 1-2
-2. Graph: Verify still has at least three contact points
 
 ## Limitations
 
 IPv4 support is guaranteed. IPv6 will require some manual adjustments to the AddressList in order to work.
 
-## Midterm Presentation TODOs
+# Midterm Presentation TODOs
 
 - README (Done)
   - Add examples
@@ -139,3 +148,10 @@ IPv4 support is guaranteed. IPv6 will require some manual adjustments to the Add
   - Add a third level node by default (Done)
   - Conflict resolution? (maybe leave till phase 2) (Done)
 - Addressbook to file (Done)
+
+## Mempool proposal (Later)
+
+- Each block can hold max 5tx
+- Each tx also contains a fee
+- Tx mined will give to miner
+- Miner will prioritize highest fee first

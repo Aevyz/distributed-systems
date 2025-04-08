@@ -13,6 +13,7 @@ import kotlin.concurrent.thread
 
 class TransactionsHandler(val addressList: AddressList, val transactions: Transactions) : HttpHandler {
     override fun handle(exchange: HttpExchange) {
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*")
         println("${addressList.ownAddress}: Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
         val parts = exchange.requestURI.path.split("/")
 
@@ -37,7 +38,7 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
         if (path.equals("/transactions/all")) {
             println("all transactions")
             val test = transactions.allTransactions()
-            val response = Json.encodeToString(test.toString())
+            val response = Json.encodeToString(test)
             sendResponse(exchange, response, 200)
             return
         }

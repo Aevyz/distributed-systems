@@ -8,6 +8,7 @@ import dev.lochert.ds.blockchain.http.HttpUtil
 import dev.lochert.ds.blockchain.http.server.strategy.address.subgraph.Graph.Companion.printConnectedComponents
 import kotlinx.serialization.json.Json
 
+// ChatGPT was used to generate small parts of these functions
 object SubgraphStrategy {
     fun queryForAddresses(listOfAddresses:Set<Address>):Map<Address, Set<Address>>{
         val rMap = mutableMapOf<Address, Set<Address>>()

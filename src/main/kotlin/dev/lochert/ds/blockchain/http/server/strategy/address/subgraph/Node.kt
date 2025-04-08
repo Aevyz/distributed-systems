@@ -2,6 +2,7 @@ package dev.lochert.ds.blockchain.http.server.strategy.address.subgraph
 
 import dev.lochert.ds.blockchain.address.Address
 
+// This code has been generated with the assistance of ChatGPT
 data class Node(val address: Address, val neighbors:MutableList<Node> = mutableListOf()){
     override fun toString(): String {
         return "Node(address=$address, neighbors=${neighbors.map { it.address }})"

@@ -1,6 +1,7 @@
 package dev.lochert.ds.blockchain.http.server.strategy.address.subgraph
-// This code has been generated with the assistance of ChatGPT
 
+
+// This code has been generated with the assistance of ChatGPT
 data class AddressPoc(val street: String, val city: String)
 
 class NodePoc(val address: AddressPoc) {
