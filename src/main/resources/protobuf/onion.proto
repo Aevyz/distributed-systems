@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package onion;
+
+// Top-level message that wraps any of the types
+message OnionPacket {
+  oneof payload {
+    EncryptedContent encrypted_content = 1;
+    CoverTraffic cover_traffic = 2;
+    HttpGetRequest http_get_request = 3;
+    HttpGetResponse http_get_response = 4;
+    HttpPostRequest http_post_request = 5; // <-- NEW
+    SimpleMessage simple_message = 10;
+  }
+
+  uint32 delay_ms = 6;              // Delay before forwarding (in milliseconds)
+  bytes random_padding = 7;         // Random bytes to hide actual packet size
+  string backIdentifier = 8;        // For Response
+  string timestamp = 9;             // Nonce
+
+}
+
+// 1. Encrypted content for onion layers
+message EncryptedContent {
+  string ciphertext = 1;              // Encrypted bytes
+  string type = 2;                   // Name/type of KEM used
+  bytes public_key = 3;              // Sender's public key
+//  bytes secret_key_encapsulated = 4; // Encapsulated secret
+  string debug_plaintext = 5;         // Debugging: original message, unencrypted
+  string destination = 6;            // IP + Port to send this message to
+}
+
+// 2. Cover traffic command
+message CoverTraffic {
+  string random_destination = 1;     // Random IP/domain or node ID to send junk to
+  uint32 random_size = 2;             // Size of junk packet to send
+}
+
+// 3. HTTP GET request
+message HttpGetRequest {
+  string url = 1;                    // URL to fetch
+  map<string, string> headers = 2;   // Optional headers
+}
+
+// 4. HTTP GET response
+message HttpGetResponse {
+  uint32 status_code = 1;            // HTTP response code (e.g., 200, 404)
+  map<string, string> headers = 2;   // Response headers
+  bytes body = 3;                    // Body content of the response
+}
+
+// 5. HTTP POST request (NEW)
+message HttpPostRequest {
+  string url = 1;                    // URL to post to
+  map<string, string> headers = 2;   // Headers (e.g., Content-Type)
+  bytes body = 3;                    // Payload data (could be JSON, form-data, etc.)
+}
+
+message SimpleMessage{
+  string message = 1;
+}
