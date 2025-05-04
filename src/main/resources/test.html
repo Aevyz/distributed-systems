@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blockchain Blocks</title>
+    <style>
+        /* Basic CSS to set up three columns */
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .column {
+            width: 30%;
+            padding: 10px;
+            border: 1px solid black;
+            margin: 10px;
+            overflow-y: auto;
+        }
+
+        h2 {
+            text-align: center;
+        }
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            padding: 5px 0;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Blockchain Blocks</h1>
+
+<div class="container">
+    <div class="column" id="column-8080">
+        <h2>8080</h2>
+        <ul id="list-8080">
+            <!-- Blocks from 8080 will be listed here -->
+        </ul>
+    </div>
+
+    <div class="column" id="column-9000">
+        <h2>9000</h2>
+        <ul id="list-9000">
+            <!-- Blocks from 9000 will be listed here -->
+        </ul>
+    </div>
+
+    <div class="column" id="column-9001">
+        <h2>9001</h2>
+        <ul id="list-9001">
+            <!-- Blocks from 9001 will be listed here -->
+        </ul>
+    </div>
+    <div class="column" id="column-9099">
+        <h2>9099</h2>
+        <ul id="list-9099">
+            <!-- Blocks from 9001 will be listed here -->
+        </ul>
+    </div>
+    <div class="column" id="column-9240">
+        <h2>9240</h2>
+        <ul id="list-9240">
+            <!-- Blocks from 9001 will be listed here -->
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Function to fetch blocks and display them in a given list element
+    async function fetchBlocks(url, listId) {
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            const listElement = document.getElementById(listId);
+            listElement.innerHTML = ''; // Clear the previous list
+            data.forEach(block => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `Nonce: ${block.nonce}, Content: ${block.content}`;
+                listElement.appendChild(listItem);
+            });
+        } catch (error) {
+            console.error('Error fetching blocks from', url, error);
+        }
+    }
+
+    // Fetch blocks from each server and populate the corresponding lists
+    function loadBlocks() {
+        fetchBlocks('http://localhost:8080/block', 'list-8080');
+        fetchBlocks('http://localhost:9000/block', 'list-9000');
+        fetchBlocks('http://localhost:9001/block', 'list-9001');
+        fetchBlocks('http://localhost:9099/block', 'list-9099');
+        fetchBlocks('http://localhost:9240/block', 'list-9240');
+    }
+
+    // Load the blocks when the page loads
+    window.onload = function() {
+        loadBlocks();
+        // Refresh every 5 seconds
+        setInterval(loadBlocks, 5000);
+    };
+</script>
+
+</body>
+</html>

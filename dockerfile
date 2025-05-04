@@ -1,20 +1,32 @@
-FROM gradle:8.5-jdk17 AS build
+# Use an official OpenJDK runtime as the base image
+FROM amazoncorretto:23-alpine
 
+# Set the working directory inside the container
 WORKDIR /app
 
-COPY . .
+RUN apk add bash
+# Copy the Gradle wrapper and build files first (for caching)
+COPY gradlew gradlew.bat gradle/ /app/
+COPY build.gradle.kts settings.gradle.kts /app/
+COPY ./gradle /app/gradle
+RUN ls
+# Grant execute permission for Gradle wrapper
+RUN chmod +x gradlew
+RUN ./gradlew
+# Copy the source code
+COPY src/ /app/src/
+# ENTRYPOINT bash
 
-RUN gradle clean shadowJar --no-daemon
+# Build the application inside the container
+RUN ./gradlew build -x test
 
-# Create a lightweight image with only the JAR
-FROM openjdk:17-jdk-slim
+# Find and copy the generated JAR file
+RUN cp build/libs/*.jar app.jar
 
-WORKDIR /app
+# COPY build/libs/DistributedSystems-1.0-SNAPSHOT.jar app.jar
 
-COPY --from=build /app/build/libs/*.jar app.jar
+# Expose the port your application runs on
+# EXPOSE 8080
 
-EXPOSE 8080
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
-
-# This code has been generated with the assistance of ChatGPT
+# Run the application
+ENTRYPOINT ["./gradlew","run"]
