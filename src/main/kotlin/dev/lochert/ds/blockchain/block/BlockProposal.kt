@@ -3,12 +3,14 @@ package dev.lochert.ds.blockchain.block
 import dev.lochert.ds.blockchain.Transactions.Transactions
 import dev.lochert.ds.blockchain.block.BlockUtils.Companion.hasLeadingZeroBytes
 import dev.lochert.ds.blockchain.block.BlockUtils.Companion.hashByteArray
+import dev.lochert.ds.blockchain.pki.RSAKeyPairs
 
 // Used ChatGPT
 data class BlockProposal(
     val parentBlockHashHex:String,
     val content:String,
-    val transactions: Transactions
+    val transactions: Transactions,
+    val miner: String = RSAKeyPairs.alice.publicKeyToString(),
 ){
     constructor(previousBlock: Block, content: String, transactions: Transactions) : this(previousBlock.blockHash, content, transactions)
 
@@ -20,7 +22,7 @@ data class BlockProposal(
 
         do {
             nonce++
-            val input = parentBlockHashHex + nonce.toString() + content
+            val input = parentBlockHashHex + nonce.toString() + content + miner
             blockHash = hashByteArray(input.toByteArray())
             if(nonce%1000000==0){
                 println("[Debug] Tried Nonce's: $nonce - ${blockHash[0]} ${blockHash[1]}")
@@ -29,7 +31,7 @@ data class BlockProposal(
 
         println("Found Nonce: $nonce, Hash: ${blockHash.toHexString()}")
 
-        return Block(parentBlockHashHex, nonce, content, blockHash.toHexString(), transactions)
+        return Block(parentBlockHashHex, nonce, content, blockHash.toHexString(), transactions, miner)
     }
 
 }

@@ -6,7 +6,7 @@ import kotlin.random.Random
 
 object Constants {
 
-    var DIFFICULTY = 5
+    var DIFFICULTY = 4
 
     const val HASH_ALGORITHM = "SHA3-512"
 
@@ -39,6 +39,8 @@ object Constants {
     var readAddressBook = false
 
     var setRandom = Random(SecureRandom().nextInt())
+
+    const val miningReward = 1000
 
 
 }

@@ -7,21 +7,26 @@ import java.security.spec.X509EncodedKeySpec
 import java.util.*
 import javax.crypto.Cipher
 
-class RSAKeyPair(name: String, port: UShort = 8000U, dir: String = "src/main/resources/rsa", keySize: Int = 2048 * 2) {
+@OptIn(ExperimentalStdlibApi::class)
+class RSAKeyPair(private val name: String, dir: String = "src/main/resources/rsa", keySize: Int = 2048 / 4) {
 
     val publicKey: PublicKey
     val privateKey: PrivateKey
     private val publicFile: File
     private val privateFile: File
-    val domain = "$name.ds.onion"
-    val domainPort = "$domain:$port"
+
+    override fun toString(): String {
+        return "${publicKeyToString().substring(100, 106)}($name)"
+    }
+
+    fun publicKeyToString() = publicKey.encoded.toHexString()
 
     init {
         val keyDir = File(dir)
         if (!keyDir.exists()) keyDir.mkdirs()
 
-        publicFile = File(keyDir, "${domainPort}_public.key")
-        privateFile = File(keyDir, "${domainPort}_private.key")
+        publicFile = File(keyDir, "${name}_public.key")
+        privateFile = File(keyDir, "${name}_private.key")
 
         if (publicFile.exists() && privateFile.exists()) {
             publicKey = loadPublicKey(publicFile)

@@ -1,9 +1,11 @@
 package dev.lochert.ds.blockchain.block
 
 import dev.lochert.ds.blockchain.Transactions.Transactions
+import dev.lochert.ds.blockchain.pki.RSAKeyPairs
 
 class BlockChain(genesisBlock: Block){
     val listOfBlocks = mutableListOf(genesisBlock)
+
 
 
     fun lastHash(): String {
@@ -16,8 +18,12 @@ class BlockChain(genesisBlock: Block){
         listOfBlocks.add(block)
         return block
     }
-    fun addBlock(content: String, transactions: Transactions = Transactions()): Block {
-        return addBlock(BlockProposal(listOfBlocks.last().blockHash, content, transactions))
+    fun addBlock(
+        content: String,
+        transactions: Transactions = Transactions(),
+        miner: String = RSAKeyPairs.alice.publicKeyToString()
+    ): Block {
+        return addBlock(BlockProposal(listOfBlocks.last().blockHash, content, transactions, miner))
     }
     fun addBlock(blockProposal: BlockProposal): Block {
         return addBlock(blockProposal.generateBlock())
