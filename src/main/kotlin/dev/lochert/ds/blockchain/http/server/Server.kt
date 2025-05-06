@@ -75,7 +75,30 @@ class Server{
     }
     fun startServer(){
         httpServer = HttpServer.create(InetSocketAddress(port.toInt()), 100)
-        httpServer!!.createContext("/", { HttpUtil.sendResponse(it, "Ok", 200) })
+//        httpServer!!.createContext("/", { HttpUtil.sendResponse(it, "Ok", 200) })
+        httpServer!!.createContext("/", {
+            val html = """
+            <html>
+            <head><title>API Endpoints</title></head>
+            <body>
+                <h1>Available Endpoints</h1>
+                <ul>
+                    <li><a href="/address">/address</a></li>
+                    <li><a href="/address-graph.svg">/address-graph.svg</a></li>
+                    <li><a href="/block">/block</a></li>
+                    <li><a href="/block/hash">/block/hash</a></li>
+                    <li><a href="/block/index">/block/index</a></li>
+                    <li><a href="/block/hash/from">/block/hash/from</a></li>
+                    <li><a href="/transactions/all">/transactions/all</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/post">/transactions/post</a></li>
+                    <li><a href="/control/add-block">/control/add-block</a></li>
+                </ul>
+            </body>
+            </html>
+        """.trimIndent()
+            HttpUtil.sendResponse(it, html, 200)
+        })
         // Address handlers (GET & POST)
         httpServer!!.createContext("/address", AddressHandler(addressList))
         httpServer!!.createContext("/address-graph.svg", AddressGraphHandler(addressList))

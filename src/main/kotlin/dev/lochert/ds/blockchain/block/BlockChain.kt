@@ -16,7 +16,7 @@ class BlockChain(genesisBlock: Block){
         listOfBlocks.add(block)
         return block
     }
-    fun addBlock(content:String, transactions: Transactions): Block {
+    fun addBlock(content: String, transactions: Transactions = Transactions()): Block {
         return addBlock(BlockProposal(listOfBlocks.last().blockHash, content, transactions))
     }
     fun addBlock(blockProposal: BlockProposal): Block {

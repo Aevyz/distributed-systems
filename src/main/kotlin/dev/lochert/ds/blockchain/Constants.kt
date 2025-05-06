@@ -5,7 +5,8 @@ import java.security.SecureRandom
 import kotlin.random.Random
 
 object Constants {
-    var DIFFICULTY = 2
+
+    var DIFFICULTY = 5
 
     const val HASH_ALGORITHM = "SHA3-512"
 
