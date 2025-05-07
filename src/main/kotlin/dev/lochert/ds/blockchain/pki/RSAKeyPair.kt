@@ -8,7 +8,7 @@ import java.util.*
 import javax.crypto.Cipher
 
 @OptIn(ExperimentalStdlibApi::class)
-class RSAKeyPair(private val name: String, dir: String = "src/main/resources/rsa", keySize: Int = 2048 / 4) {
+class RSAKeyPair(val name: String, dir: String = "src/main/resources/rsa", keySize: Int = 2048 / 4) {
 
     val publicKey: PublicKey
     val privateKey: PrivateKey

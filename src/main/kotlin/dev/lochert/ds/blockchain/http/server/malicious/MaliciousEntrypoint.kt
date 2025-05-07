@@ -1,6 +1,7 @@
 package dev.lochert.ds.blockchain.http.server.malicious
 
 import dev.lochert.ds.blockchain.http.server.Server
+import dev.lochert.ds.blockchain.pki.RSAKeyPairs
 import java.net.ServerSocket
 
 var counter: UShort = 9000U
@@ -11,8 +12,8 @@ fun main() {
         if (isPortAvailable(ownPort.toInt())) {
             // If the port is available, start the server
             val s = Server()
-            repeat(10) {
-                s.blockChain.addBlock("MaliciousTx-$it")
+            repeat(15) {
+                s.blockChain.addBlock("MaliciousTx-$it", miner = RSAKeyPairs.mallory.publicKeyToString())
             }
             s.addressList.addAddress("172.18.0.3", 9000u)
             s.startServer()

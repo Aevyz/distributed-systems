@@ -76,8 +76,10 @@ class Server{
         httpServer!!.stop(0)
     }
     fun startServer(){
+        println("[Server] Starting server on $port")
         httpServer = HttpServer.create(InetSocketAddress(port.toInt()), 100)
 //        httpServer!!.createContext("/", { HttpUtil.sendResponse(it, "Ok", 200) })
+        // ChatGPT was nice enough to generate this
         httpServer!!.createContext("/", {
             val html = """
             <html>
