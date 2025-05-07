@@ -3,6 +3,7 @@ package dev.lochert.ds.blockchain.http.server.strategy.address.subgraph
 import dev.lochert.ds.blockchain.Constants
 import dev.lochert.ds.blockchain.address.Address
 
+// This code has been generated with the assistance of ChatGPT
 class Graph() {
     val nodes = mutableSetOf<Node>()
 

@@ -6,6 +6,7 @@ class BlockChain(genesisBlock: Block){
     val listOfBlocks = mutableListOf(genesisBlock)
 
 
+
     fun lastHash(): String {
         return listOfBlocks.last().blockHash
     }
@@ -16,8 +17,12 @@ class BlockChain(genesisBlock: Block){
         listOfBlocks.add(block)
         return block
     }
-    fun addBlock(content:String, transactions: Transactions): Block {
-        return addBlock(BlockProposal(listOfBlocks.last().blockHash, content, transactions))
+    fun addBlock(
+        content: String,
+        transactions: Transactions = Transactions(),
+        miner: String = BlockProposal.defaultMinerForThisNode.publicKeyToString()
+    ): Block {
+        return addBlock(BlockProposal(listOfBlocks.last().blockHash, content, transactions, miner))
     }
     fun addBlock(blockProposal: BlockProposal): Block {
         return addBlock(blockProposal.generateBlock())

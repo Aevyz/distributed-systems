@@ -13,12 +13,13 @@ RUN ls
 # Grant execute permission for Gradle wrapper
 RUN chmod +x gradlew
 RUN ./gradlew
+RUN ./gradlew dependencies --no-daemon
 # Copy the source code
 COPY src/ /app/src/
 # ENTRYPOINT bash
 
 # Build the application inside the container
-RUN ./gradlew build -x test
+RUN ./gradlew build -x test --no-daemon --parallel
 
 # Find and copy the generated JAR file
 RUN cp build/libs/*.jar app.jar

@@ -21,38 +21,38 @@ services:
     depends_on:
       - initial
     command: [ "--args", "9000" ]
-  node5:
-    build: .
-    depends_on:
-      - initial
-    command: [ "--args", "9000" ]
-  node6:
-    build: .
-    depends_on:
-      - initial
-    command: [ "--args", "9000" ]
-  node7:
-    build: .
-    depends_on:
-      - initial
-    command: [ "--args", "9000" ]
-  node8:
-    build: .
-    depends_on:
-      - initial
-    command: [ "--args", "9000" ]
-  node9:
-    build: .
-    depends_on:
-      - initial
-    command: [ "--args", "9000" ]
-  node10:
-    build: .
-    depends_on:
-      - initial
-    command: [ "--args", "9000" ]
-  node11:
-    build: .
-    depends_on:
-      - initial
-    command: [ "--args", "9000" ]
+#  node5:
+#    build: .
+#    depends_on:
+#      - initial
+#    command: [ "--args", "9000" ]
+#  node6:
+#    build: .
+#    depends_on:
+#      - initial
+#    command: [ "--args", "9000" ]
+#  node7:
+#    build: .
+#    depends_on:
+#      - initial
+#    command: [ "--args", "9000" ]
+#  node8:
+#    build: .
+#    depends_on:
+#      - initial
+#    command: [ "--args", "9000" ]
+#  node9:
+#    build: .
+#    depends_on:
+#      - initial
+#    command: [ "--args", "9000" ]
+#  node10:
+#    build: .
+#    depends_on:
+#      - initial
+#    command: [ "--args", "9000" ]
+#  node11:
+#    build: .
+#    depends_on:
+#      - initial
+#    command: [ "--args", "9000" ]

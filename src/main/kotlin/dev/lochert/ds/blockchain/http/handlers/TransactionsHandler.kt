@@ -8,11 +8,13 @@ import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.http.HttpUtil
 import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
 import dev.lochert.ds.blockchain.http.Message
+import dev.lochert.ds.blockchain.pki.RSAKeyPairs
 import kotlinx.serialization.json.Json
 import kotlin.concurrent.thread
 
 class TransactionsHandler(val addressList: AddressList, val transactions: Transactions) : HttpHandler {
     override fun handle(exchange: HttpExchange) {
+        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*")
         println("${addressList.ownAddress}: Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
         val parts = exchange.requestURI.path.split("/")
 
@@ -37,7 +39,7 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
         if (path.equals("/transactions/all")) {
             println("all transactions")
             val test = transactions.allTransactions()
-            val response = Json.encodeToString(test.toString())
+            val response = Json.encodeToString(test)
             sendResponse(exchange, response, 200)
             return
         }
@@ -53,7 +55,17 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
         }
         // If values are given, then generates a transaction with provided values
         if (parts[2] == "create" && parts.size == 6) {
-            val transaction = transactions.addTransactionToList(parts[4], parts[5], parts[6].toDouble())
+            val rsaKeyPairOfTransactionHandler = RSAKeyPairs.getRSAKeyPair(parts[4])
+            if (rsaKeyPairOfTransactionHandler == null) {
+                sendResponse(
+                    exchange,
+                    "Unknown User, please select from: ${RSAKeyPairs.listOfKeyPairs.map { it.name }}",
+                    203
+                )
+                return
+            }
+            val transaction =
+                transactions.addTransactionToList(rsaKeyPairOfTransactionHandler, parts[5], parts[6].toDouble())
             val response = Json.encodeToString(transaction.toString())
             propagateTransaction(transaction)
             sendResponse(exchange, response, 200)

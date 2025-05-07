@@ -8,11 +8,14 @@ import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.block.Block
 import dev.lochert.ds.blockchain.block.BlockChain
+import dev.lochert.ds.blockchain.block.BlockProposal
 import dev.lochert.ds.blockchain.http.HttpUtil
+import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
 import dev.lochert.ds.blockchain.http.handlers.*
 import dev.lochert.ds.blockchain.http.server.strategy.address.naive.NaiveStrategy
 import dev.lochert.ds.blockchain.http.server.strategy.address.subgraph.SubgraphStrategy
 import dev.lochert.ds.blockchain.http.server.strategy.maintenance.*
+import dev.lochert.ds.blockchain.pki.RSAKeyPairs
 import kotlinx.serialization.json.Json
 import java.net.InetSocketAddress
 import kotlin.concurrent.thread
@@ -74,14 +77,62 @@ class Server{
         httpServer!!.stop(0)
     }
     fun startServer(){
+        println("[Server] Starting server on $port")
         httpServer = HttpServer.create(InetSocketAddress(port.toInt()), 100)
-        httpServer!!.createContext("/", { HttpUtil.sendResponse(it, "Ok", 200) })
+//        httpServer!!.createContext("/", { HttpUtil.sendResponse(it, "Ok", 200) })
+        // ChatGPT was nice enough to generate this
+        httpServer!!.createContext("/", {
+            val html = """
+            <html>
+            <head><title>API Endpoints</title></head>
+            <body>
+                <h1>Available Endpoints</h1>
+                <h2>This node is proudly mined by ${BlockProposal.defaultMinerForThisNode.name}</h2>
+                <ul>
+                    <li><a href="/address">/address</a></li>
+                    <li><a href="/address-graph.svg">/address-graph.svg</a></li>
+                    <li><a href="/block">/block</a></li>
+                    <li><a href="/balance">/balance</a></li>
+                    <li><a href="/block/hash">/block/hash</a></li>
+                    <li><a href="/block/index">/block/index</a></li>
+                    <li><a href="/block/hash/from">/block/hash/from</a></li>
+                    <li><a href="/transactions/all">/transactions/all</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/post">/transactions/post</a></li>
+                    <li><a href="/transaction-log">/transaction-log</a></li>
+                    <li><a href="/control/add-block">/control/add-block</a></li>
+                    <li><a href="/control/add-block/quick-add">/control/add-block/quick-add</a></li>
+                    <li><a href="/control/init-mine">/control/init-mine</a></li>
+                </ul>
+                <h1>Demo Regular Behaviour</h1>
+                
+                <ol>
+                    <li><a href="/address-graph.svg">/address-graph.svg</a></li>
+                    <li><a href="/control/init-mine">/control/init-mine</a></li>
+                    <li><a href="/transaction-log">/transaction-log</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/all">/transactions/all</a></li>
+                    <li><a href="/control/add-block/quick-add">/control/add-block/quick-add</a></li>
+                    <li><a href="/transaction-log">/transaction-log</a></li>
+                </ol>
+            </body>
+            </html>
+        """.trimIndent()
+            HttpUtil.sendResponse(it, html, 200)
+        })
         // Address handlers (GET & POST)
         httpServer!!.createContext("/address", AddressHandler(addressList))
         httpServer!!.createContext("/address-graph.svg", AddressGraphHandler(addressList))
 
         // Block handlers (GET & POST)
         httpServer!!.createContext("/block", BlockHandler(this))
+        // Balance handler (GET)
+        httpServer!!.createContext("/balance", BalanceHandler(this))
 
         // Get a specific block by hash or by index (genesis block is 0)
         httpServer!!.createContext("/block/hash", BlockHandlerHash(this))
@@ -96,10 +147,19 @@ class Server{
         httpServer!!.createContext( "/transactions/create", TransactionsHandler(addressList, transactions))
         // post endpoint
         httpServer!!.createContext( "/transactions/post", TransactionsHandler(addressList, transactions))
+        httpServer!!.createContext("/transaction-log", TransactionLogsHandler(this))
 
         // Send a node the instruction to add a block
         // /control/add-block/bla (I was lazy and wanted to add blocks via HTTP Get)
         httpServer!!.createContext("/control/add-block", ControlAddHandler(this))
+        httpServer!!.createContext("/control/init-mine", { exchange ->
+            RSAKeyPairs.listOfKeyPairs.forEach {
+                blockChain.addBlock("Init $it", miner = it.publicKeyToString())
+            }
+
+            val response = Json.encodeToString(blockChain.listOfBlocks)
+            sendResponse(exchange, response, 200)
+        })
 
 
         httpServer!!.executor = null

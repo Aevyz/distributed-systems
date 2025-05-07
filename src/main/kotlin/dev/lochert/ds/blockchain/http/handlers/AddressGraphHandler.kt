@@ -6,7 +6,6 @@ import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
 import dev.lochert.ds.blockchain.http.Message
 import dev.lochert.ds.blockchain.http.server.strategy.address.subgraph.LastGraph
-import kotlinx.serialization.json.Json
 
 
 class AddressGraphHandler(val addressList: AddressList) : HttpHandler {

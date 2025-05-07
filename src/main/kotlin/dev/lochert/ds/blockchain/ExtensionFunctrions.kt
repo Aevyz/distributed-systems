@@ -8,6 +8,7 @@ fun String.isAlphanumeric(): Boolean {
     return this.matches(Regex("^[a-zA-Z0-9]+$"))
 }
 
+// Adapted from ChatGPT
 fun getOwnIpAddress(): String {
 
     val interfaces = NetworkInterface.getNetworkInterfaces()
