@@ -1,7 +1,11 @@
 package dev.lochert.ds.blockchain.Transactions
 
+import dev.lochert.ds.blockchain.Constants
+import dev.lochert.ds.blockchain.pki.RSAKeyPair
+import dev.lochert.ds.blockchain.pki.RSAKeyPairs
 import kotlinx.serialization.Serializable
 import kotlin.random.Random
+
 @Serializable
 class Transactions() {
     val listOfTransactions = mutableListOf<Transaction>()
@@ -12,15 +16,18 @@ class Transactions() {
     fun addTransactionToList(newTransaction: Transaction) {
         if (doesTransactionExist(newTransaction)) {
             println("Can't add a duplicate transaction to list")
-        } else {
-            println("New transaction in list: " + newTransaction.toString())
-            listOfTransactions.add(newTransaction)
+            return
         }
-
+        if (!newTransaction.verify()) {
+            println("Transaction Signature is Invalid")
+            return
+        }
+        println("New transaction in list: $newTransaction")
+        listOfTransactions.add(newTransaction)
     }
 
     // Add a transaction to the transactions list with provided values
-    fun addTransactionToList(sender: String, recipient:String, amount:Double): Transaction {
+    fun addTransactionToList(sender: RSAKeyPair, recipient: String, amount: Double): Transaction {
         val transaction = Transaction(sender, recipient, amount)
         addTransactionToList(transaction)
         return transaction
@@ -28,10 +35,16 @@ class Transactions() {
 
     // Add a transaction with random values to the transactions list
     fun addRandomTransactionToList(): Transaction {
-        val sender = generateAlphanumericString(4)
-        val receiver = generateAlphanumericString(4)
-        val amount = Random.nextDouble(0.0, 500.0)
-        val newTransaction = Transaction(sender, receiver, amount)
+        val randomPubKeys = RSAKeyPairs.listOfKeyPairs.shuffled().take(2)
+        val receiver = randomPubKeys.last().publicKeyToString()
+//        val amount = Random.nextDouble(0.0, 5.0)
+        val amount = Random.nextInt(1, 30) * 10.0
+        val newTransaction = Transaction(
+            randomPubKeys.first(),
+            receiver,
+            amount,
+            Constants.defaultTransactionFee * Random.nextInt(1, 4).toDouble()
+        )
         addTransactionToList(newTransaction)
         return newTransaction
     }
@@ -40,6 +53,7 @@ class Transactions() {
     val alphanumeric = ('A'..'Z') + ('a'..'z') + ('0'..'9')
 
     // Creates a String containing x random characters
+    @Deprecated("We will use Public Keys")
     fun generateAlphanumericString(length: Int) : String {
         // The buildString function will create a StringBuilder
         return buildString {

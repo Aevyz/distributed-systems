@@ -40,7 +40,8 @@ object Constants {
 
     var setRandom = Random(SecureRandom().nextInt())
 
-    const val miningReward = 1000
+    const val miningReward = 1000.0
+    const val defaultTransactionFee = 2
 
 
 }

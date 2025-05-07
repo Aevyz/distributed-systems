@@ -10,8 +10,12 @@ data class BlockProposal(
     val parentBlockHashHex:String,
     val content:String,
     val transactions: Transactions,
-    val miner: String = RSAKeyPairs.alice.publicKeyToString(),
+    val miner: String = defaultMinerForThisNodePublicKey,
 ){
+    companion object {
+        val defaultMinerForThisNode = (RSAKeyPairs.listOfKeyPairs - RSAKeyPairs.mallory).random()
+        val defaultMinerForThisNodePublicKey = defaultMinerForThisNode.publicKeyToString()
+    }
     constructor(previousBlock: Block, content: String, transactions: Transactions) : this(previousBlock.blockHash, content, transactions)
 
     // Required because I am using the toHex function

@@ -8,6 +8,7 @@ import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
 import dev.lochert.ds.blockchain.block.Block
 import dev.lochert.ds.blockchain.block.BlockChain
+import dev.lochert.ds.blockchain.block.BlockProposal
 import dev.lochert.ds.blockchain.http.HttpUtil
 import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
 import dev.lochert.ds.blockchain.http.handlers.*
@@ -86,6 +87,7 @@ class Server{
             <head><title>API Endpoints</title></head>
             <body>
                 <h1>Available Endpoints</h1>
+                <h2>This node is proudly mined by ${BlockProposal.defaultMinerForThisNode.name}</h2>
                 <ul>
                     <li><a href="/address">/address</a></li>
                     <li><a href="/address-graph.svg">/address-graph.svg</a></li>
@@ -97,9 +99,27 @@ class Server{
                     <li><a href="/transactions/all">/transactions/all</a></li>
                     <li><a href="/transactions/create">/transactions/create</a></li>
                     <li><a href="/transactions/post">/transactions/post</a></li>
+                    <li><a href="/transaction-log">/transaction-log</a></li>
                     <li><a href="/control/add-block">/control/add-block</a></li>
+                    <li><a href="/control/add-block/quick-add">/control/add-block/quick-add</a></li>
                     <li><a href="/control/init-mine">/control/init-mine</a></li>
                 </ul>
+                <h1>Demo Regular Behaviour</h1>
+                
+                <ol>
+                    <li><a href="/address-graph.svg">/address-graph.svg</a></li>
+                    <li><a href="/control/init-mine">/control/init-mine</a></li>
+                    <li><a href="/transaction-log">/transaction-log</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/create">/transactions/create</a></li>
+                    <li><a href="/transactions/all">/transactions/all</a></li>
+                    <li><a href="/control/add-block/quick-add">/control/add-block/quick-add</a></li>
+                    <li><a href="/transaction-log">/transaction-log</a></li>
+                </ol>
             </body>
             </html>
         """.trimIndent()
@@ -127,6 +147,7 @@ class Server{
         httpServer!!.createContext( "/transactions/create", TransactionsHandler(addressList, transactions))
         // post endpoint
         httpServer!!.createContext( "/transactions/post", TransactionsHandler(addressList, transactions))
+        httpServer!!.createContext("/transaction-log", TransactionLogsHandler(this))
 
         // Send a node the instruction to add a block
         // /control/add-block/bla (I was lazy and wanted to add blocks via HTTP Get)

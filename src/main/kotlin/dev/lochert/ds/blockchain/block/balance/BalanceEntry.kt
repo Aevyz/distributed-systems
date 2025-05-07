@@ -5,9 +5,9 @@ import kotlinx.serialization.Serializable
 
 
 @Serializable
-data class PublicKeyBalance(
+data class BalanceEntry(
     var name: String = "Unknown",
-    val balance: Int,
+    val balance: Double,
     val publicKeyString: String,
 ) {
     init {

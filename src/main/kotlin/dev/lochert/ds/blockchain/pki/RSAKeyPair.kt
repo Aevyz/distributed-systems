@@ -81,6 +81,37 @@ class RSAKeyPair(val name: String, dir: String = "src/main/resources/rsa", keySi
         val spec = PKCS8EncodedKeySpec(file.readBytes())
         return KeyFactory.getInstance("RSA").generatePrivate(spec)
     }
+    fun sign(data: String): String {
+        val signature = Signature.getInstance("SHA256withRSA")
+        signature.initSign(privateKey)
+        signature.update(data.toByteArray())
+        val signedBytes = signature.sign()
+        return Base64.getEncoder().encodeToString(signedBytes)
+    }
+
+    fun verify(data: String, signatureBase64: String): Boolean {
+        val signature = Signature.getInstance("SHA256withRSA")
+        signature.initVerify(publicKey)
+        signature.update(data.toByteArray())
+        val decodedSignature = Base64.getDecoder().decode(signatureBase64)
+        return signature.verify(decodedSignature)
+    }
+
+    companion object {
+        fun verifySignature(data: String, signatureBase64: String, publicKeyHex: String): Boolean {
+            val publicKeyBytes = publicKeyHex.hexToByteArray()
+            val spec = X509EncodedKeySpec(publicKeyBytes)
+            val keyFactory = KeyFactory.getInstance("RSA")
+            val publicKey = keyFactory.generatePublic(spec)
+
+            val signature = Signature.getInstance("SHA256withRSA")
+            signature.initVerify(publicKey)
+            signature.update(data.toByteArray())
+
+            val decodedSignature = Base64.getDecoder().decode(signatureBase64)
+            return signature.verify(decodedSignature)
+        }
+    }
 }
 
 // This code has been generated with the assistance of ChatGPT
