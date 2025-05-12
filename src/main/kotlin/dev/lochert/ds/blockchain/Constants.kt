@@ -42,6 +42,7 @@ object Constants {
 
     const val miningReward = 1000.0
     const val defaultTransactionFee = 2
+    const val transactionsInBlock = 3
 
 
 }

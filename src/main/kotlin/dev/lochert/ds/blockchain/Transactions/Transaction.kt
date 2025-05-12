@@ -56,7 +56,7 @@ class Transaction(
     }
 
     override fun toString(): String {
-        return "Transaction(sender='$sender', senderShortName=$senderShortName, receiver='$receiver', receiverShortName=$receiverShortName, amount=$amount, signature='$signature')"
+        return "Transaction(sender='$sender', senderShortName=$senderShortName, receiver='$receiver', receiverShortName=$receiverShortName, amount=$amount, minerReward=$transactionMinerReward, signature='$signature')"
     }
 
     // Untested

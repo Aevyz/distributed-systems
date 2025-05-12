@@ -10,7 +10,7 @@ import kotlin.random.Random
 class Transactions() {
     val listOfTransactions = mutableListOf<Transaction>()
 
-    fun allTransactions():List<Transaction> = listOfTransactions.toList()
+    fun allTransactions():List<Transaction> = listOfTransactions.toList().sortedByDescending { transaction -> transaction.transactionMinerReward }
 
     // Add transaction to the transactions list
     fun addTransactionToList(newTransaction: Transaction) {

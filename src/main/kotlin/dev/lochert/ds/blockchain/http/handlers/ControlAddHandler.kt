@@ -1,7 +1,10 @@
 package dev.lochert.ds.blockchain.http.handlers
 
 import com.sun.net.httpserver.HttpExchange
+import dev.lochert.ds.blockchain.Constants.transactionsInBlock
 import dev.lochert.ds.blockchain.Transactions.Transactions
+import dev.lochert.ds.blockchain.block.balance.BalanceEntry
+import dev.lochert.ds.blockchain.block.balance.getBalances
 import dev.lochert.ds.blockchain.http.HttpUtil.sendResponse
 import dev.lochert.ds.blockchain.http.server.Server
 import kotlinx.serialization.json.Json
@@ -19,7 +22,7 @@ class ControlAddHandler(server: Server) : BlockHandler(server) {
         println("${addressList.ownAddress}: Received ${exchange.requestMethod} from ${exchange.remoteAddress} (${exchange.requestURI})")
         val path = exchange.requestURI.path
         val parts = path.split("/")
-        val transactionsToBuildBlock: Transactions = transactions
+        val transactionsToBuildBlock: Transactions = sortActionableTransactions(server.transactions, pBlockChain.getBalances())
 
         if (parts.size < 2) {
             sendResponse(exchange, "Invalid request format", 400)
@@ -37,5 +40,23 @@ class ControlAddHandler(server: Server) : BlockHandler(server) {
         propagateBlock(block)
         // As Block was created, the Transactions used should be removed.
         transactions.removeTransactions(transactionsToBuildBlock.allTransactions())
+    }
+
+    // run through all pending transactions and see which can be done without going negative
+    fun sortActionableTransactions(transactions: Transactions, balances: List<BalanceEntry>): Transactions {
+        val chosenTransactions: Transactions = Transactions()
+        var count = 0
+        transactions.allTransactions().forEach {transaction ->
+            val thereIsSuchAccount = balances.filter { it.name == transaction.senderShortName }.size != 0
+            if (count < transactionsInBlock && thereIsSuchAccount) {
+                val senderBalance = balances.first() { it.name == transaction.senderShortName }.balance
+                val transactionValue = transaction.amount + transaction.transactionMinerReward
+                if (transactionValue <= senderBalance) {
+                    chosenTransactions.addTransactionToList(transaction)
+                    count += 1
+                }
+            }
+        }
+        return chosenTransactions
     }
 }

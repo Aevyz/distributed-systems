@@ -24,6 +24,11 @@ class TransactionsHandler(val addressList: AddressList, val transactions: Transa
             return
         }
 
+        // If transaction value is negative and transaction is not randomly generated
+        if (parts.size > 3 && parts[6].toDouble() <= 0) {
+            sendResponse(exchange, "Transaction can't have negative value", 400)
+            return
+        }
         when (exchange.requestMethod) {
             "GET" -> handleGet(exchange)
             "POST" -> handlePost(exchange)
