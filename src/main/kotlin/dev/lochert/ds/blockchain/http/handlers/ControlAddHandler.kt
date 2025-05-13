@@ -2,6 +2,7 @@ package dev.lochert.ds.blockchain.http.handlers
 
 import com.sun.net.httpserver.HttpExchange
 import dev.lochert.ds.blockchain.Constants.transactionsInBlock
+import dev.lochert.ds.blockchain.Transactions.Transaction
 import dev.lochert.ds.blockchain.Transactions.Transactions
 import dev.lochert.ds.blockchain.block.balance.BalanceEntry
 import dev.lochert.ds.blockchain.block.balance.getBalances
@@ -48,7 +49,7 @@ class ControlAddHandler(server: Server) : BlockHandler(server) {
         var count = 0
         transactions.allTransactions().forEach {transaction ->
             val thereIsSuchAccount = balances.filter { it.name == transaction.senderShortName }.size != 0
-            if (count < transactionsInBlock && thereIsSuchAccount) {
+            if (count < transactionsInBlock && thereIsSuchAccount && !doBlocksContainTransaction(transaction)) {
                 val senderBalance = balances.first() { it.name == transaction.senderShortName }.balance
                 val transactionValue = transaction.amount + transaction.transactionMinerReward
                 if (transactionValue <= senderBalance) {
@@ -58,5 +59,15 @@ class ControlAddHandler(server: Server) : BlockHandler(server) {
             }
         }
         return chosenTransactions
+    }
+
+    fun doBlocksContainTransaction(transaction: Transaction): Boolean {
+        server.blockChain.allBlocks().forEach {
+            if (it.transactions.contains(transaction)) {
+                server.transactions.removeTransaction(transaction)
+                return true
+            }
+        }
+        return false
     }
 }
