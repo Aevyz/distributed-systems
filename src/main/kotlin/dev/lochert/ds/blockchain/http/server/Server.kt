@@ -3,6 +3,7 @@ package dev.lochert.ds.blockchain.http.server
 import com.sun.net.httpserver.HttpServer
 import dev.lochert.ds.blockchain.*
 import dev.lochert.ds.blockchain.Constants.maintainIntervalSeconds
+import dev.lochert.ds.blockchain.Transactions.Transaction
 import dev.lochert.ds.blockchain.Transactions.Transactions
 import dev.lochert.ds.blockchain.address.Address
 import dev.lochert.ds.blockchain.address.AddressList
@@ -120,6 +121,22 @@ class Server{
                     <li><a href="/control/add-block/quick-add">/control/add-block/quick-add</a></li>
                     <li><a href="/transaction-log">/transaction-log</a></li>
                 </ol>
+                <h1>Malicious Behaviour</h1>
+                
+                <ol>
+                    <li><a href="/address-graph.svg">/address-graph.svg</a></li>
+                    <li><a href="/control/mallory-tx">/control/mallory-tx</a></li>
+                    <li><a href="/control/add-block/quick-add">/control/add-block/quick-add</a></li>
+                    <li><a href="/transaction-log">/transaction-log</a></li>
+                    <li>Transaction Rejected since Mallory cannot send money she does not have</li>
+                    <li><a href="/control/init-mine">/control/init-mine</a></li>
+                    <li><a href="/control/mallory-tx">/control/mallory-tx</a></li>
+                    <li><a href="/control/add-block/quick-add">/control/add-block/quick-add</a></li>
+                    <li><a href="/transaction-log">/transaction-log</a></li>
+                    <li>Start Malicious Endpoint; Mines 30 blocks</li>
+                    <li>Wait ~1min for blocks to propagate into the network. Mallory's transaction should be replaced</li>
+                    <li><a href="/transaction-log">/transaction-log</a></li>
+                </ol>
             </body>
             </html>
         """.trimIndent()
@@ -158,6 +175,19 @@ class Server{
             }
 
             val response = Json.encodeToString(blockChain.listOfBlocks)
+            sendResponse(exchange, response, 200)
+        })
+        httpServer!!.createContext("/control/mallory-tx", { exchange ->
+            transactions.addTransactionToList(
+                Transaction(
+                    sender = RSAKeyPairs.mallory,
+                    receiver = RSAKeyPairs.alice.publicKeyToString(),
+                    amount = 100.0,
+                )
+            )
+
+
+            val response = Json.encodeToString(transactions.listOfTransactions.last())
             sendResponse(exchange, response, 200)
         })
 

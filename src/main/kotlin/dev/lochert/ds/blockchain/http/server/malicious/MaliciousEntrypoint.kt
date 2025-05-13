@@ -12,10 +12,10 @@ fun main() {
         if (isPortAvailable(ownPort.toInt())) {
             // If the port is available, start the server
             val s = Server()
-            repeat(15) {
+            repeat(30) {
                 s.blockChain.addBlock("MaliciousTx-$it", miner = RSAKeyPairs.mallory.publicKeyToString())
             }
-//            s.addressList.addAddress("172.18.0.3", 9000u)
+            s.addressList.addAddress("172.18.0.3", 9000u)
             s.startServer()
         } else {
             throw RuntimeException("Port $ownPort is already in use")
