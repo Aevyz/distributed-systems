@@ -12,9 +12,13 @@ If you have two blockchains with the same length, the one with the lowest last h
 In order to maintain the node's address list, we employ a few different strategies. These are listed in the
 `maintain.md` file.
 
-Each block can contain up to 3 transactions. The transactions with the highest mining reward will be mined first.
-The mining of blocks is not done automatically, since this would complicate the demo.
-One must manually trigger the block. It is recommended to use `/control/add-block/quick-add` for this.
+Block creation
+- Each block can contain up to 3 transactions. 
+  - The transactions with the highest mining reward will be mined first.
+  - If pending transaction would result in the balance of the sender going negative, it is not considered for block creation (it remains in the pending transactions list)
+  - If pending transaction is already in some previous block, the transaction is removed from pending transactions list 
+- The mining of blocks is not done automatically, since this would complicate the demo.
+- One must manually trigger the block creation. It is recommended to use `/control/add-block/quick-add` for this.
 
 > IMPORTANT: The unit tests are "simulations" of a network, hence will take a long time to run.
 > Make sure to disable this before building with Gradle (`./gradlew build -x test --no-daemon --parallel`)
@@ -71,7 +75,7 @@ Simply run `docker compose up -d` in the main root folder, and the system will s
 | `/block/hash/from`            | Get blocks starting from hash                                                               | —                                                                                    |
 | `/balance`                    | Get balance of all users                                                                    | —                                                                                    |
 | `/transaction-log` *          | List all blocks and their transactions, also includes the balances and mining rewards       | —                                                                                    |
-| `/transactions/all`           | List all transactions                                                                       | —                                                                                    |
+| `/transactions/all`           | List all pending transactions (not in blocks)                                               | —                                                                                    |
 | `/transactions/create`        | Create a transaction with randomized content (for debugging/demoing)                        | —                                                                                    |
 | `/transactions/post`          | —                                                                                           | Post a transaction to the network                                                    |
 | `/transaction-log`            | Get transaction logs                                                                        | —                                                                                    |
