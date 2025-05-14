@@ -13,7 +13,8 @@ class Transaction(
     val receiverShortName: String? = RSAKeyPairs.getRSAKeyPair(receiver)?.name,
     val amount: Double,
     val transactionMinerReward: Double = defaultTransactionFee.toDouble(),
-    val signature: String
+    val signature: String,
+    val creationTime: Long = System.currentTimeMillis()
 ) {
     constructor(
         sender: RSAKeyPair,
@@ -43,6 +44,8 @@ class Transaction(
         if (sender != other.sender) return false
         if (receiver != other.receiver) return false
         if (signature != other.signature) return false
+        if (transactionMinerReward != other.transactionMinerReward) return false
+        if (creationTime != other.creationTime) return false
 
         return true
     }

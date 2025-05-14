@@ -90,4 +90,8 @@ class Transactions() {
         println("clearing transactions")
         listOfTransactions.clear()
     }
+
+    fun removeTransaction(transaction: Transaction) {
+        listOfTransactions.remove(transaction)
+    }
 }
