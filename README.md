@@ -80,6 +80,8 @@ Simply run `docker compose up -d` in the main root folder, and the system will s
 
 \* Helpful visualizations to be used for demos or debugging
 
+Additionally, it may be helpful to visualize using `test-ui.html` in the resources folder.
+
 ## Demos
 
 See the homepage of the node for the normal demos.
@@ -105,3 +107,92 @@ Enable reading of previous address books in Constants. Address books are saved t
 ## Limitations
 
 IPv4 support is guaranteed. IPv6 will require some manual adjustments to the AddressList in order to work.
+
+
+## Code Structure
+```
+├── main
+│   ├── kotlin
+│   │   └── dev
+│   │       └── lochert
+│   │           └── ds
+│   │               └── blockchain
+│   │                   ├── address # Objects used to hold addresses of other nodes
+│   │                   │   ├── Address.kt
+│   │                   │   └── AddressList.kt
+│   │                   ├── AddressStrategyEnum.kt
+│   │                   ├── block # Objects used to create blocks
+│   │                   │   ├── balance # Objects used to calculate balance
+│   │                   │   │   ├── BalanceEntry.kt
+│   │                   │   │   └── Balance.kt
+│   │                   │   ├── BlockChain.kt
+│   │                   │   ├── Block.kt
+│   │                   │   ├── BlockProposal.kt
+│   │                   │   └── BlockUtils.kt
+│   │                   ├── Constants.kt # Config file
+│   │                   ├── ExtensionFunctrions.kt # Helpful extensions
+│   │                   ├── http
+│   │                   │   ├── handlers # Here is the code for each Server Handler
+│   │                   │   │   ├── AddressGraphHandler.kt
+│   │                   │   │   ├── AddressHandler.kt
+│   │                   │   │   ├── BalanceHandler.kt
+│   │                   │   │   ├── BlockHandlerHash.kt
+│   │                   │   │   ├── BlockHandlerIndex.kt
+│   │                   │   │   ├── BlockHandler.kt
+│   │                   │   │   ├── BlocksHandlerHash.kt
+│   │                   │   │   ├── ControlAddHandler.kt
+│   │                   │   │   ├── TransactionLogsHandler.kt
+│   │                   │   │   └── TransactionsHandler.kt
+│   │                   │   ├── HttpUtil.kt # Util Function to make POST and GET easier
+│   │                   │   ├── Message.kt # Error Messaging Helper
+│   │                   │   └── server 
+│   │                   │       ├── DockerInit.kt # Starting point for Docker
+│   │                   │       ├── initial
+│   │                   │       │   └── StartServerInitial.kt # Starting point for new network
+│   │                   │       ├── malicious
+│   │                   │       │   ├── MaliciousEntrypoint.kt # Starting point for malicious node demo
+│   │                   │       ├── regular
+│   │                   │       │   └── StartServer.kt # Starting point for regular node
+│   │                   │       ├── Server.kt # Main code base for server
+│   │                   │       └── strategy
+│   │                   │           ├── address # see strategy.md
+│   │                   │           │   ├── naive
+│   │                   │           │   │   └── NaiveStrategy.kt # Deprecated
+│   │                   │           │   └── subgraph # Create a graph of the network
+│   │                   │           │       ├── Graph.kt
+│   │                   │           │       ├── LastGraph.kt
+│   │                   │           │       ├── Node.kt
+│   │                   │           │       ├── SubgraphStrategy.kt
+│   │                   │           │       └── Visualization.kt
+│   │                   │           └── maintenance # Implementation of the maintenance loops
+│   │                   │               ├── BackupAddressMaintenance.kt
+│   │                   │               ├── ConnectionPointMaintenance.kt
+│   │                   │               ├── ImmediateLongestBlockchainLowestHash.kt
+│   │                   │               ├── Maintenance.kt
+│   │                   │               ├── NoThreeJumpsMaintenance.kt
+│   │                   │               └── RemoveInactiveMaintenance.kt
+│   │                   ├── pki # Encryption and Signature class
+│   │                   │   ├── RSAKeyPair.kt
+│   │                   │   └── RSAKeyPairs.kt
+│   │                   └── Transactions # Objects for Transaction Logic
+│   │                       ├── Transaction.kt
+│   │                       └── Transactions.kt
+│   └── resources
+│       ├── rsa # Here be the public and private keys
+│       │   ├── alice_private.key
+│       │   ├── alice_public.key
+│       │   ├── bob_private.key
+│       │   ├── bob_public.key
+│       │   ├── carol_private.key
+│       │   ├── carol_public.key
+│       │   ├── dan_private.key
+│       │   ├── dan_public.key
+│       │   ├── frank_private.key
+│       │   ├── frank_public.key
+│       │   ├── george_private.key
+│       │   ├── george_public.key
+│       │   ├── mallory_private.key
+│       │   └── mallory_public.key
+│       └── testui.html
+
+```
